@@ -1,2 +1,4 @@
 /.venv
 /__pycache__
+hotels/__pycache__/schemas.cpython-311.pyc
+hotels/__pycache__/routers.cpython-311.pyc
