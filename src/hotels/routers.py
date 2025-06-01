@@ -1,6 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends
-from hotels.schemas import SHotel, SHotelGet, SHotelPatch
+from src.hotels.dependencies import PaginationDep
+from src.hotels.schemas import SHotel, SHotelGet, SHotelPatch
 
 
 hotels = [
@@ -20,12 +21,12 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 @router.get("/",summary='Получение списка отелей')
 def get_hotels(
-        hotel_filter: Annotated[SHotelGet,Depends()]
+        hotel_filter: Annotated[SHotelGet, Depends()], pagination:PaginationDep
 ):
     hotels_ = []
-    offset = hotel_filter.page
-    limit = hotel_filter.page  + hotel_filter.perpage  # type: ignore
-    for hotel in hotels[offset:limit]:
+    offset =  (pagination.page - 1) * pagination.perpage # type: ignore
+    limit = pagination.perpage
+    for hotel in hotels:
         if hotel_filter.id and hotel["id"] != hotel_filter.id:
             continue
         if hotel_filter.title and hotel["title"] != hotel_filter.title:
@@ -33,6 +34,7 @@ def get_hotels(
         if hotel_filter.count_of_stars and hotel["count_of_stars"] != hotel_filter.count_of_stars:
             continue
         hotels_.append(hotel)
+    hotels_[offset:offset + limit] # type: ignore
     return hotels_
 
 @router.post("/", summary='Добавление нового отеля')

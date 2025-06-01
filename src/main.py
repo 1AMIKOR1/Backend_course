@@ -1,7 +1,14 @@
 from fastapi import FastAPI, Query, Body
-from hotels.routers import router as hotels_router
+
 
 import uvicorn
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).parent.parent))
+from src.hotels.routers import router as hotels_router
+
+from src.config import settings
 
 app = FastAPI()
 
