@@ -3,3 +3,6 @@
 hotels/__pycache__/schemas.cpython-311.pyc
 hotels/__pycache__/routers.cpython-311.pyc
 .env
+src/hotels/__pycache__/dependencies.cpython-310.pyc
+src/hotels/__pycache__/dependencies.cpython-310.pyc
+src/hotels/__pycache__/schemas.cpython-310.pyc

@@ -4,7 +4,7 @@ from src.hotels.models import HotelsModel
 from src.hotels.dependencies import PaginationDep
 from src.hotels.schemas import SHotel, SHotelGet, SHotelPatch
 from src.database import async_session_maker, engine
-from sqlalchemy import insert, select
+from sqlalchemy import func, insert, select
 
 
 add_hotel_examples = {
@@ -27,15 +27,15 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 @router.get("/", summary="Получение списка отелей")
 async def get_hotels(
     pagination: PaginationDep,
-    id: int | None = Query(None, description="Номер отеля"),
+    location: str | None = Query(None, description="Адрес отеля"),
     title: str | None = Query(None, description="Название отеля"),
 ):
     async with async_session_maker() as session:
         query = select(HotelsModel)
-        if id:
-            query = query.filter_by(id=id)
+        if location:
+            query = query.filter(HotelsModel.location.like((func.concat('%', location, '%'))))
         if title:
-            query = query.filter_by(title=title)
+            query = query.filter(HotelsModel.title.like((func.concat('%', title, '%'))))
         query = (
             query
             .limit(pagination.per_page)
