@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, Body, Depends, Query
+from src.repositories.hotels import HotelsRepository
 from src.hotels.models import HotelsModel
 from src.hotels.dependencies import PaginationDep
 from src.hotels.schemas import SHotel, SHotelGet, SHotelPatch
@@ -31,20 +32,13 @@ async def get_hotels(
     title: str | None = Query(None, description="Название отеля"),
 ):
     async with async_session_maker() as session:
-        query = select(HotelsModel)
-        if location:
-            query = query.filter(HotelsModel.location.like((func.concat('%', location, '%'))))
-        if title:
-            query = query.filter(HotelsModel.title.like((func.concat('%', title, '%'))))
-        query = (
-            query
-            .limit(pagination.per_page)
-            .offset(pagination.per_page * (pagination.page - 1))
+        return await HotelsRepository(session).get_all(
+            location=location,
+            title=title,
+            limit=pagination.per_page,
+            offset=(pagination.per_page * (pagination.page - 1)),
         )
-        result = await session.execute(query)
-
-        hotels = result.scalars().all()
-        return hotels
+        
 
 
 @router.post("/", summary="Добавление нового отеля")
