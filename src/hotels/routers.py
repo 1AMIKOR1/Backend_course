@@ -1,67 +1,71 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Body, Depends, Query
+from src.hotels.models import HotelsModel
 from src.hotels.dependencies import PaginationDep
 from src.hotels.schemas import SHotel, SHotelGet, SHotelPatch
+from src.database import async_session_maker, engine
+from sqlalchemy import insert, select
 
 
-hotels = [
-    {'id': 1, 'title': 'Moscow Grand Hotel', 'count_of_stars': 5},
-    {'id': 2, 'title': 'Saint Petersburg Palace', 'count_of_stars': 4},
-    {'id': 3, 'title': 'Sochi Beach Resort', 'count_of_stars': 3},
-    {'id': 4, 'title': 'Kazan Central Inn', 'count_of_stars': 4},
-    {'id': 5, 'title': 'Novosibirsk Comfort Stay', 'count_of_stars': 3},
-    {'id': 6, 'title': 'Yekaterinburg Luxury Suites', 'count_of_stars': 5},
-    {'id': 7, 'title': 'Vladivostok Sea View', 'count_of_stars': 4},
-    {'id': 8, 'title': 'Nizhny Novgorod Cozy Hotel', 'count_of_stars': 3},
-    {'id': 9, 'title': 'Kaliningrad Riverside', 'count_of_stars': 4},
-    {'id': 10, 'title': 'Samara Business Hotel', 'count_of_stars': 3}
-]
+add_hotel_examples = {
+    "normal": {
+        "summary": "Сочи",
+        "description": "Пример нормального объекта.",
+        "value": {"title": "Sochi Beach Resort", "location": "г. Сочи"},
+    },
+    "invalid": {
+        "summary": "Novosibirsk",
+        "description": "Пример неправильного объекта.",
+        "value": {"title": "Novosibirsk Comfort Stay"},
+    },
+}
+
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
-@router.get("/",summary='Получение списка отелей')
-def get_hotels(
-        hotel_filter: Annotated[SHotelGet, Depends()], pagination:PaginationDep
+
+@router.get("/", summary="Получение списка отелей")
+async def get_hotels(
+    pagination: PaginationDep,
+    id: int | None = Query(None, description="Номер отеля"),
+    title: str | None = Query(None, description="Название отеля"),
 ):
-    hotels_ = []
-    offset =  (pagination.page - 1) * pagination.perpage # type: ignore
-    limit = pagination.perpage
-    for hotel in hotels:
-        if hotel_filter.id and hotel["id"] != hotel_filter.id:
-            continue
-        if hotel_filter.title and hotel["title"] != hotel_filter.title:
-            continue
-        if hotel_filter.count_of_stars and hotel["count_of_stars"] != hotel_filter.count_of_stars:
-            continue
-        hotels_.append(hotel)
-    hotels_[offset:offset + limit] # type: ignore
-    return hotels_
+    async with async_session_maker() as session:
+        query = select(HotelsModel)
+        if id:
+            query = query.filter_by(id=id)
+        if title:
+            query = query.filter_by(title=title)
+        query = (
+            query
+            .limit(pagination.per_page)
+            .offset(pagination.per_page * (pagination.page - 1))
+        )
+        result = await session.execute(query)
 
-@router.post("/", summary='Добавление нового отеля')
-def create_hotels(hotel_data: SHotel
+        hotels = result.scalars().all()
+        return hotels
 
-):
-    global hotels
 
-    hotels.append({
-        "id": hotels[-1]["id"] + 1,
-        "title": hotel_data.title,
-        "count_of_stars": hotel_data.count_of_stars
-    })
+@router.post("/", summary="Добавление нового отеля")
+async def create_hotels(hotel_data: SHotel = Body(openapi_examples=add_hotel_examples)):
+    async with async_session_maker() as session:
+        add_hotel_stmt = insert(HotelsModel).values(**hotel_data.model_dump())
+        # print(add_hotel_stmt.compile(engine, compile_kwargs={"literal_binds": True}))
+        await session.execute(add_hotel_stmt)
+        await session.commit()
     return {"status": "OK"}
 
-@router.delete("/{hotel_id}", summary='Удаление отеля по id')
+
+@router.delete("/{hotel_id}", summary="Удаление отеля по id")
 def delete_hotel(hotel_id: int):
     global hotels
     hotels = [hotel for hotel in hotels if hotel["id"] != hotel_id]
     return {"status": "OK"}
 
 
-@router.put("/hotels/{hotel_id}", summary='Обновление отеля по id')
-def update_hotel(
-    hotel_id: int,
-    hotel_data: SHotel
-    ):
+@router.put("/hotels/{hotel_id}", summary="Обновление отеля по id")
+def update_hotel(hotel_id: int, hotel_data: SHotel):
     global hotels
     hotel = [hotel for hotel in hotels if hotel["id"] == hotel_id][0]
 
@@ -70,12 +74,9 @@ def update_hotel(
 
     return {"status": "OK"}
 
-@router.patch("/hotels/{hotel_id}", summary='Частичное обновление отеля по id')
-def modify_hotel(
-    hotel_id: int,
-    hotel_data: SHotelPatch
-    ):
 
+@router.patch("/hotels/{hotel_id}", summary="Частичное обновление отеля по id")
+def modify_hotel(hotel_id: int, hotel_data: SHotelPatch):
     global hotels
     hotel = [hotel for hotel in hotels if hotel["id"] == hotel_id][0]
 
