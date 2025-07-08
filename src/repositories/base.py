@@ -1,5 +1,7 @@
 from sqlalchemy import insert, select
 
+from database import BaseModel
+
 
 class BaseRepository:
     model = None
@@ -21,8 +23,8 @@ class BaseRepository:
 
         return result.scalars().one_or_none()
 
-    async def add(self, **values):
-        add_stmt = insert(self.model).values(values).returning(self.model)
+    async def add(self, data:BaseModel):
+        add_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
         result = await self.session.execute(add_stmt)
 
         return result.scalars().one_or_none()
