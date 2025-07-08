@@ -1,6 +1,6 @@
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update, delete
 
-from database import BaseModel
+from src.database import BaseModel
 
 
 class BaseRepository:
@@ -23,8 +23,17 @@ class BaseRepository:
 
         return result.scalars().one_or_none()
 
-    async def add(self, data:BaseModel):
+    async def add(self, data: BaseModel):
         add_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
         result = await self.session.execute(add_stmt)
 
         return result.scalars().one_or_none()
+    
+    async def edit(self, data: BaseModel, **filter_by) -> None:
+        
+        edit_stmt = update(self.model).filter_by(**filter_by).values(**data.model_dump())
+        await self.session.execute(edit_stmt)
+
+    async def delete(self, **filter_by) -> None:
+        delete_stmt = delete(self.model).filter_by(**filter_by) 
+        await self.session.execute(delete_stmt)
