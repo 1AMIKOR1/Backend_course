@@ -1,14 +1,13 @@
 from pydantic import BaseModel
 
 
-class SHotel(BaseModel):
+class SHotelAdd(BaseModel):
     title: str
     location: str
 
-class SHotelGet(BaseModel):
-    id: int | None = None
-    title: str | None = None
-    location: str | None = None
+class SHotelGet(SHotelAdd):
+    id: int 
+    
 
 class SHotelPatch(BaseModel):
     title: str | None = None

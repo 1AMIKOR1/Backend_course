@@ -1,10 +1,12 @@
 from sqlalchemy import func, select
+from hotels.schemas import SHotelGet
 from src.hotels.models import HotelsModel
 from src.repositories.base import BaseRepository
 
 
 class HotelsRepository(BaseRepository):
     model = HotelsModel
+    schema = SHotelGet
 
     async def get_all(self, location, title, limit, offset):
         query = select(HotelsModel)
