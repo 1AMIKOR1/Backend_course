@@ -1,12 +1,8 @@
-from typing import Annotated
-from fastapi import APIRouter, Body, Depends, Query
+from fastapi import APIRouter, Body, Query
 from src.repositories.hotels import HotelsRepository
-from src.hotels.models import HotelsModel
 from src.hotels.dependencies import PaginationDep
 from src.hotels.schemas import SHotel, SHotelGet, SHotelPatch
-from src.database import async_session_maker, engine
-from sqlalchemy import func, insert, select
-
+from src.database import async_session_maker
 
 add_hotel_examples = {
     "normal": {
@@ -38,7 +34,12 @@ async def get_hotels(
             limit=pagination.per_page,
             offset=(pagination.per_page * (pagination.page - 1)),
         )
-        
+
+
+@router.get("/{hotel_id}")
+async def get_hotel(hotel_id: int):
+    async with async_session_maker() as session:
+        return await HotelsRepository(session).get_one_or_none(id=hotel_id)
 
 
 @router.post("/", summary="Добавление нового отеля")
@@ -57,7 +58,7 @@ async def delete_hotel(hotel_id: int):
     return {"status": "OK"}
 
 
-@router.put("/hotels/{hotel_id}", summary="Обновление отеля по id")
+@router.put("/{hotel_id}", summary="Обновление отеля по id")
 async def update_hotel(hotel_id: int, hotel_data: SHotel):
     async with async_session_maker() as session:
         await HotelsRepository(session).edit(data=hotel_data, id=hotel_id)
@@ -65,14 +66,12 @@ async def update_hotel(hotel_id: int, hotel_data: SHotel):
     return {"status": "OK"}
 
 
-@router.patch("/hotels/{hotel_id}", summary="Частичное обновление отеля по id")
-def modify_hotel(hotel_id: int, hotel_data: SHotelPatch):
-    global hotels
-    hotel = [hotel for hotel in hotels if hotel["id"] == hotel_id][0]
-
-    if hotel_data.count_of_stars or hotel_data.count_of_stars == 0:
-        hotel["count_of_stars"] = hotel_data.count_of_stars
-    if hotel_data.title:
-        hotel["title"] = hotel_data.title
+@router.patch("/{hotel_id}", summary="Частичное обновление отеля по id")
+async def modify_hotel(hotel_id: int, hotel_data: SHotelPatch):
+    async with async_session_maker() as session:
+        await HotelsRepository(session).edit(
+            data=hotel_data, exclude_unset=True, id=hotel_id
+        )
+        await session.commit()
 
     return {"status": "OK"}

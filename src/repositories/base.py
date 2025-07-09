@@ -1,6 +1,6 @@
 from sqlalchemy import insert, select, update, delete
 
-from src.database import BaseModel
+from pydantic import BaseModel
 
 
 class BaseRepository:
@@ -29,11 +29,17 @@ class BaseRepository:
 
         return result.scalars().one_or_none()
     
-    async def edit(self, data: BaseModel, **filter_by) -> None:
-        
-        edit_stmt = update(self.model).filter_by(**filter_by).values(**data.model_dump())
-        await self.session.execute(edit_stmt)
-
     async def delete(self, **filter_by) -> None:
         delete_stmt = delete(self.model).filter_by(**filter_by) 
         await self.session.execute(delete_stmt)
+    
+    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> None:
+        
+        edit_stmt = (
+            update(self.model)
+            .filter_by(**filter_by)
+            .values(**data.model_dump(exclude_unset=exclude_unset))
+        )
+        await self.session.execute(edit_stmt)
+
+
