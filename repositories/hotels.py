@@ -1,7 +1,7 @@
 from sqlalchemy import func, select
-from hotels.schemas import SHotelGet
-from src.hotels.models import HotelsModel
-from src.repositories.base import BaseRepository
+from schemas.hotels import SHotelGet
+from models.hotels import HotelsModel
+from repositories.base import BaseRepository
 
 
 class HotelsRepository(BaseRepository):

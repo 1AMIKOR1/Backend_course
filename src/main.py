@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
-from src.hotels.routers import router as hotels_router
+from api.hotels import router as hotels_router
 
 from src.config import settings
 

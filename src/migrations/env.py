@@ -6,8 +6,8 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from src.database import BaseModel
-from src.hotels.models import HotelsModel
-from src.rooms.models import RoomsModel
+from models.hotels import HotelsModel
+from models.rooms import RoomsModel
 
 from src.config import settings
 
