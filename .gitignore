@@ -1,8 +1,30 @@
-/.venv
-/__pycache__
-hotels/__pycache__/schemas.cpython-311.pyc
-hotels/__pycache__/routers.cpython-311.pyc
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment variables
 .env
-src/hotels/__pycache__/dependencies.cpython-310.pyc
-src/hotels/__pycache__/dependencies.cpython-310.pyc
-src/hotels/__pycache__/schemas.cpython-310.pyc
+
+# Logs and databases
+*.log
+test_db.db
+*.sqlite
+
+# IDE settings
+.idea/
+.vscode/
+
+# Test and coverage
+.pytest_cache/
+.tox/
+.coverage
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
