@@ -12,3 +12,7 @@ class SUser(BaseModel):
     id: int 
     email: EmailStr
     model_config = ConfigDict(from_attributes=True)
+
+
+class SUserWithHashedPassword(SUser):
+    hashed_password: str

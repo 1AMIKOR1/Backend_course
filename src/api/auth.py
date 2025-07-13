@@ -1,12 +1,30 @@
-from unittest import expectedFailure
-from fastapi import APIRouter, Body
+
+from datetime import datetime, timedelta, timezone
+
+from fastapi import APIRouter, Body, HTTPException, Response
 from passlib.context import CryptContext
+import jwt
 
 from src.repositories.users import UserAlreadyExists, UsersRepository
 from src.schemas.users import SUserAdd, SUserRequestAdd
 from src.database import async_session_maker
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+SECRET_KEY = "bmtrj4gf4156dnf20d"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode |= ({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def verify_password(plain_password, hashed_password) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
 
 router = APIRouter(prefix="/auth", tags=["Авторизация и аутентификация"])
 
@@ -41,6 +59,30 @@ async def register_user(
             await session.rollback()
             raise e
             
+@router.post("/login",summary="Аутентификация пользователя")
+async def login_user(
+    response: Response,
+    data: SUserRequestAdd = Body(openapi_examples=reg_user_examples),
+   
+) -> dict[str, str]:
+    hashed_password = pwd_context.hash(data.password)
+    
+    async with async_session_maker() as session:
+        
+        user = await UsersRepository(session).get_user_with_hashed_password(email=data.email)
+        
+        if not user:
+            raise HTTPException(status_code=401, detail="Пользователь с таким email не существует")
+        
+        if not  verify_password(data.password, user.hashed_password):
+            raise HTTPException(status_code=401, detail="Неверный пароль")
 
+
+        access_token: str = create_access_token({"user_id": user.id})
+        response.set_cookie("access_token",access_token)
+        return {"access_token": access_token}
+
+        
+            
 
     
