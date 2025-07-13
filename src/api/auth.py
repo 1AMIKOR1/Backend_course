@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, HTTPException, Request, Response
+from fastapi import APIRouter, Body, HTTPException, Response
 
 
 from services.auth import AuthService
@@ -27,7 +27,7 @@ reg_user_examples = {
 async def register_user(
     data: SUserRequestAdd = Body(openapi_examples=reg_user_examples),
 ) -> dict[str, str]:
-    hashed_password: str = AuthService().hash_password(data.password)
+    hashed_password:str = AuthService().hash_password(data.password)
     new_user_data = SUserAdd(email=data.email, hashed_password=hashed_password)
 
     async with async_session_maker() as session:
@@ -46,7 +46,7 @@ async def login_user(
     response: Response,
     data: SUserRequestAdd = Body(openapi_examples=reg_user_examples),
 ) -> dict[str, str]:
-    async with async_session_maker() as session:
+      async with async_session_maker() as session:
 
         user = await UsersRepository(session).get_user_with_hashed_password(
             email=data.email
@@ -63,13 +63,3 @@ async def login_user(
         access_token: str = AuthService().create_access_token({"user_id": user.id})
         response.set_cookie("access_token", access_token)
         return {"access_token": access_token}
-
-
-@router.get("/only_auth")
-async def only_auth(
-    request: Request,
-):
-
-    access_token = request.cookies.get("access_token", None)
-    
-    return {"value" : access_token}
