@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Body, HTTPException, Response
+from pydantic import BaseModel
 
 
+from api.dependencies import UserIdDep
 from services.auth import AuthService
 from src.repositories.users import UserAlreadyExists, UsersRepository
-from src.schemas.users import SUserAdd, SUserRequestAdd
+from src.schemas.users import SUser, SUserAdd, SUserRequestAdd
 from src.database import async_session_maker
 
 
@@ -63,3 +65,15 @@ async def login_user(
         access_token: str = AuthService().create_access_token({"user_id": user.id})
         response.set_cookie("access_token", access_token)
         return {"access_token": access_token}
+
+
+@router.get("/me",summary="Получение текущего пользователя")
+async def get_me(user_id: UserIdDep) -> SUser:
+    async with async_session_maker() as session:
+        user: None | BaseModel = await UsersRepository(session).get_one_or_none(id=user_id)
+        return user
+    
+@router.post("/logout")
+async def logout(response:Response) -> dict[str, str]:
+    response.delete_cookie("access_token")
+    return {"status": "OK"}
