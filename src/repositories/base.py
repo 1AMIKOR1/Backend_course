@@ -22,7 +22,7 @@ class BaseRepository:
             for model in result.scalars().all()
             ]
 
-    async def get_one_or_none(self, **filter_by):
+    async def get_one_or_none(self, **filter_by) -> None | BaseModel:
         query = select(self.model).filter_by(**filter_by)
 
         result = await self.session.execute(query)
