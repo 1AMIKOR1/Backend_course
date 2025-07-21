@@ -10,12 +10,13 @@ class RoomsRepository(BaseRepository):
     model: Base = RoomsModel
     schema: BaseModel = SRoomGet
 
-    async def get_all(self, price, title, limit, offset):
+    async def get_all(self, hotel_id, price, title, limit, offset):
         query = select(self.model)
+        if hotel_id:
+            query = query.filter(self.model.hotel_id == hotel_id)
+
         if price:
-            query = query.filter(
-                self.model.price == price
-            )
+            query = query.filter(self.model.price == price)
         if title:
             query = query.filter(
                 func.lower(self.model.title).contains(title.strip().lower())
