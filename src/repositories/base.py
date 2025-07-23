@@ -35,7 +35,10 @@ class BaseRepository:
         add_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
         result = await self.session.execute(add_stmt)
 
-        return result.scalars().one_or_none()
+        model = result.scalars().one_or_none()
+        if model is None:
+            return None
+        return self.schema.model_validate(model)
 
     async def delete(self, **filter_by) -> None:
         delete_stmt = delete(self.model).filter_by(**filter_by)
