@@ -42,7 +42,7 @@ async def get_rooms(
         price=price,
         title=title,
         limit=pagination.per_page,
-        offset=(pagination.per_page * (pagination.page - 1)),
+        offset=(pagination.per_page * (pagination.page - 1))
     )
 
 

@@ -46,3 +46,24 @@ async def create_booking(
     booking: None | SBookingGet = await db.bookings.add(_booking_data)
     await db.commit()
     return {"status": "OK", "data": booking}
+
+@router.get("/",summary="Просмотр всех бронирований")
+async def get_bookings(
+    db: DBDep,
+    pagination: PaginationDep
+)-> list[SBookingGet] | None:
+    return await db.bookings.get_all(
+        limit=pagination.per_page,
+        offset=(pagination.per_page * (pagination.page - 1))
+    )
+@router.get("/me",summary="Просмотр бронирований текущего пользователя")
+async def get_bookings_current_user(
+    db: DBDep,
+    user_id: UserIdDep,
+    pagination: PaginationDep
+)-> list[SBookingGet] | None:
+    return await db.bookings.get_all(
+        limit=pagination.per_page,
+        offset=(pagination.per_page * (pagination.page - 1)), 
+        user_id=user_id
+    )

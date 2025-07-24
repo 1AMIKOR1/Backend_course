@@ -23,5 +23,6 @@ class RoomsRepository(BaseRepository):
             )
         query = query.limit(limit).offset(offset)
         result = await self.session.execute(query)
-
-        return result.scalars().all()
+        result = [self.schema.model_validate(model) for model in result.scalars().all()]
+        return result
+        
