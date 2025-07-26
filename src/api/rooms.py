@@ -1,3 +1,4 @@
+from datetime import date
 from fastapi import APIRouter, Body, Query
 from api.dependencies import DBDep, PaginationDep
 from schemas.rooms import SRoomAdd, SRoomAddRequest, SRoomGet, SRoomPatch, SRoomPatchRequest
@@ -34,12 +35,18 @@ async def get_rooms(
     db: DBDep,
     hotel_id: int,
     pagination: PaginationDep,
-    price: int | None = Query(None, description="Стоимость номера"),
-    title: str | None = Query(None, description="Название номера"),
+    date_from: date = Query(example="2025-07-25", description="Дата заезда"),
+    date_to: date = Query(example="2025-07-30", description="Дата выезда"),
+    price_from: int | None = Query(None, description="Начало диапазона стоимости номера"),
+    price_to: int | None = Query(None, description="Конец диапазона стоимости номера"),
+    title: str | None = Query(None, description="Название номера")
 ) -> list[SRoomGet] | None:
     return await db.rooms.get_all(
         hotel_id=hotel_id,
-        price=price,
+        date_from=date_from,
+        date_to=date_to,
+        price_from=price_from,
+        price_to=price_to,
         title=title,
         limit=pagination.per_page,
         offset=(pagination.per_page * (pagination.page - 1))
