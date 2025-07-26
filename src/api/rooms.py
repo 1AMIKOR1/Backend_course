@@ -41,7 +41,7 @@ async def get_rooms(
     price_to: int | None = Query(None, description="Конец диапазона стоимости номера"),
     title: str | None = Query(None, description="Название номера")
 ) -> list[SRoomGet] | None:
-    return await db.rooms.get_all(
+    return await db.rooms.get_filtered_free_rooms(
         hotel_id=hotel_id,
         date_from=date_from,
         date_to=date_to,
