@@ -1,7 +1,7 @@
 from datetime import date
 from fastapi import APIRouter, Body, Query
-from api.dependencies import DBDep, PaginationDep
-from schemas.rooms import SRoomAdd, SRoomAddRequest, SRoomGet, SRoomPatch, SRoomPatchRequest
+from src.api.dependencies import DBDep, PaginationDep
+from src.schemas.rooms import SRoomAdd, SRoomAddRequest, SRoomGet, SRoomPatch, SRoomPatchRequest
 
 rooms_examples = {
     "normal": {
