@@ -13,8 +13,8 @@ async def get_facilities(
 @router.post("/", summary="Добавление нового удобства")
 async def add_facility(
     db: DBDep,
-    title: SFacilityAdd = Body(openapi_example="холодильник")
+    facility: SFacilityAdd = Body(openapi_example="холодильник")
 )-> dict | None:
-    facility = await db.facilities.add(title)
+    data: None | SFacilityGet = await db.facilities.add(facility)
     await db.commit()
-    return {"status": "OK", "data": facility}
+    return {"status": "OK", "data": data}
