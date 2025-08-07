@@ -37,10 +37,11 @@ async def get_rooms(
     date_to: date = Query(example="2025-07-30", description="Дата выезда"),
     price_from: int | None = Query(
         None, description="Начало диапазона стоимости номера"
-    ),
+        ),
     price_to: int | None = Query(None, description="Конец диапазона стоимости номера"),
     title: str | None = Query(None, description="Название номера"),
 ) -> list[SRoomGet] | None:
+    
     return await db.rooms.get_filtered_free_rooms(
         hotel_id=hotel_id,
         date_from=date_from,

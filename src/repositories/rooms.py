@@ -1,16 +1,17 @@
 from datetime import date
-from pydantic import BaseModel
-from database import Base
+from sqlalchemy import select
+from sqlalchemy.orm.strategy_options import selectinload
 
-from repositories.base import BaseRepository
-from models.rooms import RoomsModel
-from repositories.utils import rooms_ids_free
-from schemas.rooms import SRoomGet
+
+from src.repositories.base import BaseRepository
+from src.models.rooms import RoomsModel
+from src.repositories.utils import rooms_ids_free
+from src.schemas.rooms import SRoomGet, SRoomWithRels
 
 
 class RoomsRepository(BaseRepository):
-    model: Base = RoomsModel
-    schema: BaseModel = SRoomGet
+    model: RoomsModel = RoomsModel
+    schema: SRoomGet = SRoomGet
 
     async def get_filtered_free_rooms(
         self,
@@ -32,8 +33,16 @@ class RoomsRepository(BaseRepository):
             price_to=price_to, 
             title=title
         )
-        return await self.get_filtered(
-            limit, 
-            offset, 
-            self.model.id.in_(rooms_ids_to_get)
+        query = (
+                select(self.model)
+                .options(selectinload(self.model.facilities))
+                .filter(self.model.id.in_(rooms_ids_to_get)
+                )
         )
+        if limit and offset:
+            query = query.limit(limit).offset(offset)
+
+        result = await self.session.execute(query)
+        result = [SRoomWithRels.model_validate(model) for model in result.scalars().all()]
+        
+        return result

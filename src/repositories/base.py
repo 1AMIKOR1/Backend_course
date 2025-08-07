@@ -19,8 +19,13 @@ class BaseRepository:
         filter_by = {k: v for k, v in filter_by.items() if v is not None}
         filter = [v for v in filter if v is not None ]
         
-        query = select(self.model).filter(*filter).filter_by(**filter_by)
-        if limit is not None and offset is not None:
+        query = (
+            select(self.model)
+            .filter(*filter)
+            .filter_by(**filter_by)
+            )
+        
+        if limit and offset:
             query = query.limit(limit).offset(offset)
         # print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
         result = await self.session.execute(query)
