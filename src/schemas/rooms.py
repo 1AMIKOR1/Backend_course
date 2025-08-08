@@ -2,7 +2,6 @@ from pydantic import BaseModel, ConfigDict
 
 from src.schemas.facilities import SFacilityGet
 
-
 class SRoomAddRequest(BaseModel):
     title: str
     description: str | None = None
@@ -39,3 +38,7 @@ class SRoomPatch(BaseModel):
     description: str | None = None
     price: int | None = None
     quantity: int | None = None
+
+
+class SRoomWithRels(SRoomGet):
+    facilities: list[SFacilityGet]

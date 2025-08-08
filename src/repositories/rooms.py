@@ -1,6 +1,9 @@
 from datetime import date
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload, joinedload
+
+
+from sqlalchemy.orm.strategy_options import selectinload
+
 
 from src.repositories.base import BaseRepository
 from src.models.rooms import RoomsModel
@@ -9,8 +12,10 @@ from src.schemas.rooms import SRoomGet, SRoomWithRels
 
 
 class RoomsRepository(BaseRepository):
+
     model: type[RoomsModel] = RoomsModel
     schema: type[SRoomGet] = SRoomGet
+
 
     async def get_filtered_free_rooms(
         self,
@@ -33,6 +38,7 @@ class RoomsRepository(BaseRepository):
             title=title
         )
         query = (
+
             select(self.model)
             .options(selectinload(self.model.facilities))
             .filter(RoomsModel.id.in_(rooms_ids_to_get))
@@ -40,3 +46,4 @@ class RoomsRepository(BaseRepository):
         result = await self.session.execute(query)
 
         return [SRoomWithRels.model_validate(model) for model in result.scalars().all()]
+
