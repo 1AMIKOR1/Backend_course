@@ -1,5 +1,6 @@
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from typing import TYPE_CHECKING
 
 from src.database import Base
@@ -18,6 +19,8 @@ class RoomsModel(Base):
     quantity: Mapped[int]
 
     facilities: Mapped[list["FacilitiesModel"]] = relationship(
-        secondary="rooms_facilities", 
+
         back_populates="rooms",
+        secondary="rooms_facilities",
+
     )

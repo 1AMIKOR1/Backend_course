@@ -3,8 +3,8 @@ from fastapi import Depends, Request, HTTPException
 from pydantic import BaseModel, Field
 from src.database import async_session_maker
 
-from services.auth import AuthService
-from utils.db_manader import DBManager
+from src.services.auth import AuthService
+from src.utils.db_manader import DBManager
 
 
 class PaginationParams(BaseModel):

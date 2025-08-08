@@ -20,6 +20,9 @@ class SRoomAdd(BaseModel):
 class SRoomGet(SRoomAdd):
     id: int 
     model_config = ConfigDict(from_attributes=True)
+
+class SRoomWithRels(SRoomGet):
+    facilities: list[SFacilityGet]
     
 class SRoomPatchRequest(BaseModel):
     title: str | None = None

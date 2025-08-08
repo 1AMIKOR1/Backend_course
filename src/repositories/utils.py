@@ -2,8 +2,8 @@ from datetime import date
 
 from sqlalchemy import func, select
 
-from models.bookings import BookingsModel
-from models.rooms import RoomsModel
+from src.models.bookings import BookingsModel
+from src.models.rooms import RoomsModel
 
 
 def rooms_ids_free(
