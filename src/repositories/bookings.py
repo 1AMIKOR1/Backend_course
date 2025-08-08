@@ -1,8 +1,8 @@
 from pydantic import BaseModel
-from database import Base
-from models.bookings import BookingsModel
-from repositories.base import BaseRepository
-from schemas.bookings import SBookingGet
+from src.database import Base
+from src.models.bookings import BookingsModel
+from src.repositories.base import BaseRepository
+from src.schemas.bookings import SBookingGet
 
 
 class BookingsRepository(BaseRepository):

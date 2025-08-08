@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from passlib.context import CryptContext
 import jwt
 from datetime import datetime, timedelta, timezone
-from config import settings
+from src.config import settings
 class AuthService:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

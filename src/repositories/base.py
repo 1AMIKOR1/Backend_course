@@ -2,7 +2,7 @@ from sqlalchemy import insert, select, update, delete
 
 from pydantic import BaseModel
 
-from database import Base, engine
+from src.database import Base, engine
 
 
 class BaseRepository:

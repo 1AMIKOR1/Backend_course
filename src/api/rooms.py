@@ -1,13 +1,13 @@
 from datetime import date
 from fastapi import APIRouter, Body, Query
-from schemas.facilities import SRoomFacilityAdd
+from src.schemas.facilities import SRoomFacilityAdd
 from src.api.dependencies import DBDep, PaginationDep
 from src.schemas.rooms import (
     SRoomAdd,
     SRoomAddRequest,
     SRoomGet,
     SRoomPatch,
-    SRoomPatchRequest,
+    SRoomPatchRequest, SRoomWithRels,
 )
 
 rooms_examples = {
@@ -36,11 +36,11 @@ async def get_rooms(
     date_from: date = Query(example="2025-07-25", description="Дата заезда"),
     date_to: date = Query(example="2025-07-30", description="Дата выезда"),
     price_from: int | None = Query(
-        None, description="Начало диапазона стоимости номера"
+        0, description="Начало диапазона стоимости номера"
     ),
     price_to: int | None = Query(None, description="Конец диапазона стоимости номера"),
     title: str | None = Query(None, description="Название номера"),
-) -> list[SRoomGet] | None:
+) -> list[SRoomWithRels] | None:
     return await db.rooms.get_filtered_free_rooms(
         hotel_id=hotel_id,
         date_from=date_from,

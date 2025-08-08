@@ -1,11 +1,11 @@
 from datetime import date
 from typing import Any, Tuple
-from sqlalchemy import Select, func, select
-from models.rooms import RoomsModel
-from repositories.utils import rooms_ids_free
-from schemas.hotels import SHotelGet
-from models.hotels import HotelsModel
-from repositories.base import BaseRepository
+from sqlalchemy import select, func, select
+from src.models.rooms import RoomsModel
+from src.repositories.utils import rooms_ids_free
+from src.schemas.hotels import SHotelGet
+from src.models.hotels import HotelsModel
+from src.repositories.base import BaseRepository
 
 
 class HotelsRepository(BaseRepository):
