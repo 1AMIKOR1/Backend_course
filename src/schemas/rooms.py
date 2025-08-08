@@ -1,7 +1,10 @@
 from pydantic import BaseModel, ConfigDict
 
 from src.schemas.facilities import SFacilityGet
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/detached
 
 class SRoomAddRequest(BaseModel):
     title: str

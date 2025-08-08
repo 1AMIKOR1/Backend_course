@@ -1,7 +1,12 @@
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+<<<<<<< HEAD
 from src.database import Base
+=======
+from typing import TYPE_CHECKING
+
+>>>>>>> origin/detached
 
 
 class FacilitiesModel(Base):
