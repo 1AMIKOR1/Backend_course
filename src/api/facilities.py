@@ -6,6 +6,7 @@ from fastapi_cache.decorator import cache
 from src.api.dependencies import DBDep, PaginationDep
 
 from src.schemas.facilities import SFacilityGet, SFacilityAdd, SFacilityPatch
+from src.tasks.celery_tasks import test_task
 
 router = APIRouter(prefix="/facilities", tags=["Удобства"])
 
@@ -26,4 +27,5 @@ async def add_facility(
 )-> dict | None:
     data: None | SFacilityGet = await db.facilities.add(facility)
     await db.commit()
+    test_task.delay()
     return {"status": "OK", "data": data}

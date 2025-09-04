@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 from src.database import async_session_maker
 
 from src.services.auth import AuthService
-from src.utils.db_manader import DBManager
+from src.utils.db_manager import DBManager
 
 
 class PaginationParams(BaseModel):

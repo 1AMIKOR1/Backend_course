@@ -2,6 +2,8 @@ from datetime import date
 from typing import Any, Tuple
 from sqlalchemy import select, func, select
 from src.models.rooms import RoomsModel
+from src.repositories.mapper.base import DataMapper
+from src.repositories.mapper.mappers import HotelDataMapper
 from src.repositories.utils import rooms_ids_free
 from src.schemas.hotels import SHotelGet
 from src.models.hotels import HotelsModel
@@ -11,6 +13,7 @@ from src.repositories.base import BaseRepository
 class HotelsRepository(BaseRepository):
     model = HotelsModel
     schema = SHotelGet
+    mapper: DataMapper = HotelDataMapper
 
     async def get_all(self, location, title, limit, offset):
         query = select(HotelsModel)
@@ -25,7 +28,7 @@ class HotelsRepository(BaseRepository):
         query = query.limit(limit).offset(offset)
         result = await self.session.execute(query)
 
-        return result.scalars().all()
+        return [self.mapper.map_to_schema(model) for model in result.scalars().all()]
 
     async def get_filtered_free_hotels(
         self,

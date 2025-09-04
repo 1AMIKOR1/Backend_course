@@ -7,6 +7,8 @@ from sqlalchemy.orm.strategy_options import selectinload
 
 from src.repositories.base import BaseRepository
 from src.models.rooms import RoomsModel
+from src.repositories.mapper.base import DataMapper
+from src.repositories.mapper.mappers import RoomDataMapper, RoomDataWithRelsMapper
 from src.repositories.utils import rooms_ids_free
 from src.schemas.rooms import SRoomGet, SRoomWithRels
 
@@ -15,6 +17,7 @@ class RoomsRepository(BaseRepository):
 
     model: type[RoomsModel] = RoomsModel
     schema: type[SRoomGet] = SRoomGet
+    mapper: type[DataMapper] = RoomDataMapper
 
 
     async def get_filtered_free_rooms(
@@ -45,7 +48,7 @@ class RoomsRepository(BaseRepository):
         )
         result = await self.session.execute(query)
 
-        return [SRoomWithRels.model_validate(model) for model in result.scalars().all()]
+        return [RoomDataWithRelsMapper.map_to_schema(model) for model in result.scalars().all()]
 
     async def get_one_or_none(self, **filter_by) -> None | SRoomWithRels:
         query = (
@@ -58,4 +61,4 @@ class RoomsRepository(BaseRepository):
         model = result.scalars().one_or_none()
         if model is None:
             return None
-        return SRoomWithRels.model_validate(model)
+        return RoomDataWithRelsMapper.map_to_schema(model)

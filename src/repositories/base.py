@@ -3,11 +3,13 @@ from sqlalchemy import insert, select, update, delete
 from pydantic import BaseModel
 
 from src.database import Base, engine
+from src.repositories.mapper.base import DataMapper
 
 
 class BaseRepository:
-    model: Base = None
-    schema: BaseModel = None
+    model = None
+    schema = None
+    mapper: DataMapper = None
 
     def __init__(self, session):
         self.session = session
@@ -29,7 +31,7 @@ class BaseRepository:
             query = query.limit(limit).offset(offset)
         # print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
         result = await self.session.execute(query)
-        result = [self.schema.model_validate(model) for model in result.scalars().all()]
+        result = [self.mapper.map_to_schema(model) for model in result.scalars().all()]
         
         return result
 
@@ -44,7 +46,7 @@ class BaseRepository:
         model = result.scalars().one_or_none()
         if model is None:
             return None
-        return self.schema.model_validate(model)
+        return self.mapper.map_to_schema(model)
 
     async def add(self, data: BaseModel):
         add_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
@@ -55,7 +57,7 @@ class BaseRepository:
         model = result.scalars().one_or_none()
         if model is None:
             return None
-        return self.schema.model_validate(model)
+        return self.mapper.map_to_schema(model)
     
     async def add_bulk(self, data: list[BaseModel])  -> None | BaseModel:
         add_stmt = insert(self.model).values([item.model_dump() for item in data])
