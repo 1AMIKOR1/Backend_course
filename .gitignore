@@ -32,3 +32,4 @@ build/
 dist/
 *.egg-info/
 src/Backend_course.code-workspace
+/.test.env
