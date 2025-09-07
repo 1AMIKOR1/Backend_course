@@ -60,6 +60,9 @@ class BaseRepository:
         return self.mapper.map_to_schema(model)
     
     async def add_bulk(self, data: list[BaseModel])  -> None | BaseModel:
+        '''
+        Метод для множественного добавления данных в таблицу
+        '''
         add_stmt = insert(self.model).values([item.model_dump() for item in data])
         # print(add_stmt.compile(compile_kwargs={"literal_binds": True}))
         await self.session.execute(add_stmt)
