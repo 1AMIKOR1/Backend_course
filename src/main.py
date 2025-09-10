@@ -8,6 +8,9 @@ from pathlib import Path
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 
+# from fastapi_cache.backends.inmemory import InMemoryBackend чтобы импользовать ОЗУ вместо Redis
+
+from src.config import settings
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -29,6 +32,11 @@ async def lifespan(app: FastAPI):
     yield
     # При перезагрузке\выключении приложения
     await redis_manager.disconnect()
+
+
+if settings.MODE == "TEST":
+    pass
+    # FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
 
 
 app = FastAPI(lifespan=lifespan)

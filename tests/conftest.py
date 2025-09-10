@@ -1,4 +1,15 @@
 import json
+from unittest import mock
+
+
+# def empty_cache(*args, **kwargs):
+#     def wrapper(func):
+#         return func
+#
+#     return wrapper
+# mock.patch("fastapi_cache.decorator.cache", empty_cache).start() использование своего декоратора
+
+mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f).start()
 
 import pytest
 from httpx import AsyncClient, ASGITransport

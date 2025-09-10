@@ -12,7 +12,7 @@ router = APIRouter(prefix="/facilities", tags=["Удобства"])
 
 
 @router.get("/", summary="Получение списка удобств")
-# @cache(expire=10)
+@cache(expire=10)
 async def get_facilities(db: DBDep) -> list[SFacilityGet] | None:
     # print("Иду в БД.")
     return await db.facilities.get_filtered()
