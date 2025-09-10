@@ -20,14 +20,17 @@ from src.api.booking import router as booking_router
 from src.api.facilities import router as facilities_router
 from src.api.images import router as images_router
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    #При старте приложения
+    # При старте приложения
     await redis_manager.connect()
     FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
     yield
-    #При перезагрузке\выключении приложения
-    await  redis_manager.disconnect()
+    # При перезагрузке\выключении приложения
+    await redis_manager.disconnect()
+
+
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth_router)

@@ -1,11 +1,14 @@
 import json
 
 import pytest
-from sqlalchemy.ext.asyncio import create_async_engine
 from httpx import AsyncClient, ASGITransport
 
 from src.config import settings
-from src.database import Base, engine_null_pool, async_session_maker_null_pool
+from src.database import (
+    Base,
+    engine,
+    async_session_maker,
+)
 from src.main import app
 from src.models import *
 from src.schemas.hotels import SHotelAdd
@@ -18,21 +21,21 @@ async def check_test_mode():
     assert settings.MODE == "TEST"
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 async def db() -> DBManager:
-    async with DBManager(session_factory=async_session_maker_null_pool) as db:
+    async with DBManager(session_factory=async_session_maker) as db:
         yield db
 
 
 @pytest.fixture(scope="session", autouse=True)
 async def setup_database(check_test_mode) -> None:
-    async with engine_null_pool.begin() as conn:
+    async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
 
 @pytest.fixture(scope="session", autouse=True)
-async def fill_database(setup_database):
+async def fill_database(setup_database, db):
     with open("tests/hotels_mock.json", encoding="UTF-8") as file_in:
         hotels_from_file = json.load(file_in)
     with open("tests/rooms_mock.json", encoding="UTF-8") as file_in:
@@ -40,18 +43,15 @@ async def fill_database(setup_database):
 
     hotels_data = [SHotelAdd.model_validate(hotel) for hotel in hotels_from_file]
     rooms_data = [SRoomAdd.model_validate(room) for room in rooms_form_file]
-    async with DBManager(session_factory=async_session_maker_null_pool) as db_:
-        new_hotels = await db_.hotels.add_bulk(hotels_data)
-        new_rooms = await db_.rooms.add_bulk(rooms_data)
-        await db_.commit()
-    print(f"{new_hotels=}")
-    print(f"{new_rooms=}")
+    new_hotels = await db.hotels.add_bulk(hotels_data)
+    new_rooms = await db.rooms.add_bulk(rooms_data)
+    await db.commit()
 
 
 @pytest.fixture(scope="session")
 async def ac() -> AsyncClient:
     async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
+        transport=ASGITransport(app=app), base_url="http://test", follow_redirects=False
     ) as ac:
         yield ac
 

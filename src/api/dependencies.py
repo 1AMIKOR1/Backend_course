@@ -8,8 +8,8 @@ from src.utils.db_manager import DBManager
 
 
 class PaginationParams(BaseModel):
-    page: int | None = Field(1, ge=1)
-    per_page: int | None = Field(5, ge=1, le=30)
+    page: int | None = Field(default=1, ge=1)
+    per_page: int | None = Field(default=5, ge=1, le=30)
 
 
 PaginationDep = Annotated[PaginationParams, Depends()]
