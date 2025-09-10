@@ -38,7 +38,7 @@ async def get_db_null_pool() -> DBManager:
         yield db
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 async def db() -> DBManager:
     async for db in get_db_null_pool():
         yield db
@@ -55,7 +55,8 @@ async def setup_database(check_test_mode) -> None:
 
 
 @pytest.fixture(scope="session", autouse=True)
-async def fill_database(setup_database, db):
+async def fill_database(setup_database):
+
     with open("tests/hotels_mock.json", encoding="UTF-8") as file_in:
         hotels_from_file = json.load(file_in)
     with open("tests/rooms_mock.json", encoding="UTF-8") as file_in:
@@ -63,33 +64,31 @@ async def fill_database(setup_database, db):
 
     hotels_data = [SHotelAdd.model_validate(hotel) for hotel in hotels_from_file]
     rooms_data = [SRoomAdd.model_validate(room) for room in rooms_form_file]
-    new_hotels = await db.hotels.add_bulk(hotels_data)
-    new_rooms = await db.rooms.add_bulk(rooms_data)
-    await db.commit()
+    async with DBManager(session_factory=async_session_maker_null_pool) as db_:
+        await db_.hotels.add_bulk(hotels_data)
+        await db_.rooms.add_bulk(rooms_data)
+        await db_.commit()
 
 
 @pytest.fixture(scope="session")
 async def ac() -> AsyncClient:
     async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test", follow_redirects=False
+        transport=ASGITransport(app=app), base_url="http://test"
     ) as ac:
         yield ac
 
 
 @pytest.fixture(scope="session", autouse=True)
-async def register_user(setup_database, ac):
+async def register_user(ac, setup_database):
     await ac.post(
-        "/auth/register",
-        json={"email": "johnsmith@email.com", "password": "password"},
+        "/auth/register", json={"email": "johnsmith@email.com", "password": "password"}
     )
 
 
-@pytest.fixture(scope="function")
-async def authenticated_ac(register_user, ac):
-    response = await ac.post(
-        url="/auth/login",
-        json={"email": "johnsmith@email.com", "password": "password"},
+@pytest.fixture(scope="session")
+async def authenticated_ac(ac, register_user):
+    await ac.post(
+        url="/auth/login", json={"email": "johnsmith@email.com", "password": "password"}
     )
-    assert response.cookies.get("access_token")
-    assert response.status_code == 200
+    assert ac.cookies["access_token"]
     yield ac
