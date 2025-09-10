@@ -16,19 +16,31 @@ async def test_booking_crud(db):
         date_to=date_to,
         price=price,
     )
-    new_booking = await db.bookings.add(booking_data)
+    new_booking: SBookingGet = await db.bookings.add(booking_data)
 
-    finded_booking = await db.bookings.get_one_or_none(id=new_booking.id)
+    finded_booking: SBookingGet = await db.bookings.get_one_or_none(id=new_booking.id)
+
+    assert finded_booking
 
     assert new_booking == finded_booking
 
-    edit_boking_data = SBookingPatch(
-        date_from=date(year=2026, month=9, day=1),
-        date_to=date(year=2026, month=9, day=1),
+    updated_date_from = date(year=2026, month=9, day=1)
+    updated_date_to = date(year=2026, month=9, day=1)
+
+    edit_booking_data = SBookingPatch(
+        date_from=updated_date_from,
+        date_to=updated_date_to,
     )
     await db.bookings.edit(
-        data=edit_boking_data, exclude_unset=True, id=finded_booking.id
+        data=edit_booking_data, exclude_unset=True, id=finded_booking.id
     )
+    updated_booking: SBookingGet = await db.bookings.get_one_or_none(
+        id=finded_booking.id
+    )
+    assert updated_booking
+    assert updated_booking.id == finded_booking.id
+    assert updated_booking.date_from == updated_date_from
+    assert updated_booking.date_to == updated_date_to
 
     await db.bookings.delete(id=finded_booking.id)
 
