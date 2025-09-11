@@ -1,5 +1,5 @@
 from datetime import date
-from src.schemas.bookings import SBoookingAdd, SBookingPatch, SBookingGet
+from src.schemas.bookings import SBookingAdd, SBookingPatch, SBookingGet
 
 
 async def test_booking_crud(db):
@@ -9,7 +9,7 @@ async def test_booking_crud(db):
     date_from = date(year=2025, month=9, day=1)
     date_to = date(year=2025, month=9, day=10)
 
-    booking_data = SBoookingAdd(
+    booking_data = SBookingAdd(
         room_id=room_id,
         user_id=user_id,
         date_from=date_from,

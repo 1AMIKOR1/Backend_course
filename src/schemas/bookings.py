@@ -2,7 +2,7 @@ from datetime import date
 from pydantic import BaseModel, ConfigDict
 
 
-class SBoookingAddRequest(BaseModel):
+class SBookingAddRequest(BaseModel):
     """
     room_id: int
     date_from: date
@@ -14,7 +14,7 @@ class SBoookingAddRequest(BaseModel):
     date_to: date
 
 
-class SBoookingAdd(SBoookingAddRequest):
+class SBookingAdd(SBookingAddRequest):
     """
     user_id: int
     price: int
@@ -24,7 +24,7 @@ class SBoookingAdd(SBoookingAddRequest):
     price: int
 
 
-class SBookingGet(SBoookingAdd):
+class SBookingGet(SBookingAdd):
     id: int
     total_cost: int
     model_config = ConfigDict(from_attributes=True)

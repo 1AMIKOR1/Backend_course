@@ -74,6 +74,7 @@ class BaseRepository:
 
         if filters:
             delete_stmt = delete_stmt.filter(*filters)
+
         await self.session.execute(delete_stmt)
 
     async def edit(

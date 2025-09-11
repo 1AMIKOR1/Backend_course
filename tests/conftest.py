@@ -92,3 +92,10 @@ async def authenticated_ac(ac, register_user):
     )
     assert ac.cookies["access_token"]
     yield ac
+
+
+@pytest.fixture(scope="session")
+async def delete_all_bookings():
+    async with DBManager(session_factory=async_session_maker_null_pool) as db_:
+        await db_.bookings.delete()
+        await db_.commit()

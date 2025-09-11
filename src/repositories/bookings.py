@@ -9,14 +9,14 @@ from src.models.bookings import BookingsModel
 from src.repositories.base import BaseRepository
 from src.repositories.mapper.mappers import BookingDataMapper
 from src.repositories.utils import rooms_ids_free
-from src.schemas.bookings import SBoookingAdd
+from src.schemas.bookings import SBookingAdd
 
 
 class BookingsRepository(BaseRepository):
     model: BookingsModel = BookingsModel
     mapper = BookingDataMapper
 
-    async def add_booking(self, booking_data: SBoookingAdd, hotel_id: int):
+    async def add_booking(self, booking_data: SBookingAdd, hotel_id: int):
 
         rooms_ids_to_get = rooms_ids_free(
             date_from=booking_data.date_from,

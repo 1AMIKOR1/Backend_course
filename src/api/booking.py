@@ -3,7 +3,7 @@ import logging
 from fastapi import APIRouter, Body, HTTPException, Query
 from src.api.dependencies import DBDep, PaginationDep, UserIdDep
 from src.exceptions.booking import RoomNotAvailableException
-from src.schemas.bookings import SBookingGet, SBoookingAdd, SBoookingAddRequest
+from src.schemas.bookings import SBookingGet, SBookingAdd, SBookingAddRequest
 
 
 router = APIRouter(prefix="/bookings", tags=["Бронирование"])
@@ -47,7 +47,7 @@ async def get_bookings_current_user(
 async def create_booking(
     db: DBDep,
     user_id: UserIdDep,
-    booking_data: SBoookingAddRequest = Body(openapi_examples=bookings_examples),
+    booking_data: SBookingAddRequest = Body(openapi_examples=bookings_examples),
 ):
     try:
         room = await db.rooms.get_one_or_none(id=booking_data.room_id)
@@ -57,7 +57,7 @@ async def create_booking(
         else:
             price = room.price
 
-        _booking_data = SBoookingAdd(
+        _booking_data = SBookingAdd(
             user_id=user_id, price=price, **booking_data.model_dump()
         )
         booking: SBookingGet = await db.bookings.add_booking(
