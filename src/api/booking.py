@@ -51,6 +51,7 @@ async def create_booking(
 ):
     try:
         room = await db.rooms.get_one_or_none(id=booking_data.room_id)
+
         if room is None:
             raise HTTPException(404, "Номера с таким id не существует!")
         else:
@@ -59,8 +60,11 @@ async def create_booking(
         _booking_data = SBoookingAdd(
             user_id=user_id, price=price, **booking_data.model_dump()
         )
-        booking: SBookingGet = await db.bookings.add_booking(_booking_data)
+        booking: SBookingGet = await db.bookings.add_booking(
+            _booking_data, room.hotel_id
+        )
         await db.commit()
         return {"status": "OK", "data": booking}
+
     except RoomNotAvailableException as e:
         raise HTTPException(status_code=409, detail=str(e))

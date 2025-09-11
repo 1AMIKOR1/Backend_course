@@ -6,6 +6,6 @@ async def test_get_hotels(ac):
     params = {"date_from": date_from, "date_to": date_to}
     response = await ac.get(url="/hotels/", params=params)
 
-    print(f"{response.json()=}")
+    # print(f"{response.json()=}")
 
     assert response.status_code == 200

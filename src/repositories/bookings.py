@@ -16,31 +16,19 @@ class BookingsRepository(BaseRepository):
     model: BookingsModel = BookingsModel
     mapper = BookingDataMapper
 
-    async def add_booking(self, booking_data: SBoookingAdd):
+    async def add_booking(self, booking_data: SBoookingAdd, hotel_id: int):
 
-        rooms_ids_to_booking = (
-            (
-                await self.session.execute(
-                    rooms_ids_free(
-                        date_from=booking_data.date_from, date_to=booking_data.date_to
-                    )
-                )
-            )
-            .scalars()
-            .all()
+        rooms_ids_to_get = rooms_ids_free(
+            date_from=booking_data.date_from,
+            date_to=booking_data.date_to,
+            hotel_id=hotel_id,
         )
-        if booking_data.room_id in rooms_ids_to_booking:
-            add_stmt = (
-                insert(self.model)
-                .values(**booking_data.model_dump())
-                .returning(self.model)
-            )
+        rooms_ids_to_booking: list[int] = (
+            (await self.session.execute(rooms_ids_to_get)).scalars().all()
+        )
 
-            result = await self.session.execute(add_stmt)
-            model = result.scalars().one_or_none()
-            if model is None:
-                return None
-            return self.mapper.map_to_schema(model)
+        if booking_data.room_id in rooms_ids_to_booking:
+            return await self.add(booking_data)
         else:
             raise RoomNotAvailableException(booking_data.room_id)
 
