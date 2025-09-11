@@ -1,32 +1,52 @@
 from datetime import date
 
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, insert
 
 from src.database import Base
+from src.exceptions.booking import RoomNotAvailableException
 from src.models.bookings import BookingsModel
 from src.repositories.base import BaseRepository
 from src.repositories.mapper.mappers import BookingDataMapper
-from src.schemas.bookings import SBookingGet
+from src.repositories.utils import rooms_ids_free
+from src.schemas.bookings import SBoookingAdd
 
 
 class BookingsRepository(BaseRepository):
     model: BookingsModel = BookingsModel
     mapper = BookingDataMapper
 
-    # async def get_all(self, limit, offset) -> list[BaseModel]:
-    #     query = select(self.model)
-    #     query = query.limit(limit).offset(offset)
-    #     result = await self.session.execute(query)
-    #     result = [self.schema.model_validate(model) for model in result.scalars().all()]
-    #     return result
+    async def add_booking(self, booking_data: SBoookingAdd):
+
+        rooms_ids_to_booking = (
+            (
+                await self.session.execute(
+                    rooms_ids_free(
+                        date_from=booking_data.date_from, date_to=booking_data.date_to
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+        if booking_data.room_id in rooms_ids_to_booking:
+            add_stmt = (
+                insert(self.model)
+                .values(**booking_data.model_dump())
+                .returning(self.model)
+            )
+
+            result = await self.session.execute(add_stmt)
+            model = result.scalars().one_or_none()
+            if model is None:
+                return None
+            return self.mapper.map_to_schema(model)
+        else:
+            raise RoomNotAvailableException(booking_data.room_id)
 
     async def get_bookings_with_today_chekin(self):
 
-        query = (
-            select(self.model)
-            .filter(self.model.date_from == date.today())
-        )
+        query = select(self.model).filter(self.model.date_from == date.today())
 
         result = await self.session.execute(query)
 

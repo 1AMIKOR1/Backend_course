@@ -19,7 +19,6 @@ class RoomsRepository(BaseRepository):
     schema: type[SRoomGet] = SRoomGet
     mapper: type[DataMapper] = RoomDataMapper
 
-
     async def get_filtered_free_rooms(
         self,
         hotel_id: int,
@@ -33,22 +32,24 @@ class RoomsRepository(BaseRepository):
     ):
 
         rooms_ids_to_get = rooms_ids_free(
-            hotel_id=hotel_id, 
-            date_from=date_from, 
-            date_to=date_to, 
-            price_from=price_from, 
-            price_to=price_to, 
-            title=title
+            hotel_id=hotel_id,
+            date_from=date_from,
+            date_to=date_to,
+            price_from=price_from,
+            price_to=price_to,
+            title=title,
         )
         query = (
-
             select(self.model)
             .options(selectinload(self.model.facilities))
             .filter(RoomsModel.id.in_(rooms_ids_to_get))
         )
         result = await self.session.execute(query)
 
-        return [RoomDataWithRelsMapper.map_to_schema(model) for model in result.scalars().all()]
+        return [
+            RoomDataWithRelsMapper.map_to_schema(model)
+            for model in result.scalars().all()
+        ]
 
     async def get_one_or_none(self, **filter_by) -> None | SRoomWithRels:
         query = (

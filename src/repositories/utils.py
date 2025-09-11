@@ -37,13 +37,10 @@ def rooms_ids_free(
         .outerjoin(rooms_booked, RoomsModel.id == rooms_booked.c.room_id)
         .cte(name="rooms_free")
     )
-    rooms_ids_for_hotel = (
-        select(RoomsModel.id).select_from(RoomsModel)
-    )
+    rooms_ids_for_hotel = select(RoomsModel.id).select_from(RoomsModel)
 
     if hotel_id is not None:
         rooms_ids_for_hotel = rooms_ids_for_hotel.filter_by(hotel_id=hotel_id)
-
 
     if price_from is not None and price_to is not None:
         rooms_ids_for_hotel = rooms_ids_for_hotel.filter(

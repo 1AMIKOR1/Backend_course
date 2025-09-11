@@ -3,12 +3,23 @@ from pydantic import BaseModel, ConfigDict
 
 
 class SBoookingAddRequest(BaseModel):
+    """
+    room_id: int
+    date_from: date
+    date_to: date
+    """
+
     room_id: int
     date_from: date
     date_to: date
 
 
 class SBoookingAdd(SBoookingAddRequest):
+    """
+    user_id: int
+    price: int
+    """
+
     user_id: int
     price: int
 
