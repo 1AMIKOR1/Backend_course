@@ -64,7 +64,7 @@ async def fill_database(setup_database):
 
     hotels_data = [SHotelAdd.model_validate(hotel) for hotel in hotels_from_file]
     rooms_data = [SRoomAdd.model_validate(room) for room in rooms_form_file]
-    async with DBManager(session_factory=async_session_maker_null_pool) as db_:
+    async for db_ in get_db_null_pool():
         await db_.hotels.add_bulk(hotels_data)
         await db_.rooms.add_bulk(rooms_data)
         await db_.commit()
@@ -92,10 +92,3 @@ async def authenticated_ac(ac, register_user):
     )
     assert ac.cookies["access_token"]
     yield ac
-
-
-@pytest.fixture(scope="session")
-async def delete_all_bookings():
-    async with DBManager(session_factory=async_session_maker_null_pool) as db_:
-        await db_.bookings.delete()
-        await db_.commit()

@@ -1,5 +1,6 @@
 import pytest
 from src.schemas.bookings import SBookingAddRequest
+from tests.conftest import get_db_null_pool
 
 parameters_test_add_bookings = "room_id, date_from, date_to, status_code"
 values_test_add_bookings = [
@@ -28,6 +29,7 @@ async def test_add_bookings(
         assert isinstance(new_booking, dict)
         assert new_booking["room_id"] == booking.room_id
 
+
 parameters_test_add_get_my_bookings = (
     "room_id, date_from, date_to, status_code, count_of_booking"
 )
@@ -39,6 +41,13 @@ values_test_add_get_my_bookings = [
     (1, "2025-09-01", "2025-09-10", 200, 5),
     (1, "2025-09-01", "2025-09-10", 409, 5),
 ]
+
+
+@pytest.fixture(scope="module")
+async def delete_all_bookings():
+    async for db_ in get_db_null_pool():
+        await db_.bookings.delete()
+        await db_.commit()
 
 
 @pytest.mark.parametrize(
