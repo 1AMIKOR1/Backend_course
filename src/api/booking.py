@@ -1,8 +1,7 @@
-import logging
 
-from fastapi import APIRouter, Body, HTTPException, Query
+from fastapi import APIRouter, Body, HTTPException
 from src.api.dependencies import DBDep, PaginationDep, UserIdDep
-from src.exceptions.booking import RoomNotAvailableException
+from src.exceptions import RoomNotAvailableException
 from src.schemas.bookings import SBookingGet, SBookingAdd, SBookingAddRequest
 
 
@@ -49,22 +48,21 @@ async def create_booking(
     user_id: UserIdDep,
     booking_data: SBookingAddRequest = Body(openapi_examples=bookings_examples),
 ):
+    room = await db.rooms.get_one_or_none(id=booking_data.room_id)
+
+    if room is None:
+        raise HTTPException(404, "Номера не существует!")
+    else:
+        price = room.price
+
+    _booking_data = SBookingAdd(
+        user_id=user_id, price=price, **booking_data.model_dump()
+    )
     try:
-        room = await db.rooms.get_one_or_none(id=booking_data.room_id)
-
-        if room is None:
-            raise HTTPException(404, "Номера с таким id не существует!")
-        else:
-            price = room.price
-
-        _booking_data = SBookingAdd(
-            user_id=user_id, price=price, **booking_data.model_dump()
-        )
         booking: SBookingGet = await db.bookings.add_booking(
             _booking_data, room.hotel_id
         )
-        await db.commit()
-        return {"status": "OK", "data": booking}
-
     except RoomNotAvailableException as e:
         raise HTTPException(status_code=409, detail=str(e))
+    await db.commit()
+    return {"status": "OK", "data": booking}

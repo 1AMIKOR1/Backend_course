@@ -50,7 +50,7 @@ def resize_and_save_images(
 async def get_bookings_with_today_chekin_helper():
     print("START")
     async with DBManager(session_factory=async_session_maker_null_pool) as db:
-        bookings = await db.bookings.get_bookings_with_today_chekin()
+        bookings = await db.bookings.get_bookings_with_today_checkin()
         print(f"{bookings=}")
 @celery_instance.task(name="booking_today_chekin")
 def send_emails_to_user_with_today_checkin():

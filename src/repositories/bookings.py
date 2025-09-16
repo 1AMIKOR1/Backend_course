@@ -1,10 +1,8 @@
 from datetime import date
 
-from pydantic import BaseModel
-from sqlalchemy import select, insert
+from sqlalchemy import select
 
-from src.database import Base
-from src.exceptions.booking import RoomNotAvailableException
+from src.exceptions import RoomNotAvailableException
 from src.models.bookings import BookingsModel
 from src.repositories.base import BaseRepository
 from src.repositories.mapper.mappers import BookingDataMapper
@@ -30,9 +28,9 @@ class BookingsRepository(BaseRepository):
         if booking_data.room_id in rooms_ids_to_booking:
             return await self.add(booking_data)
         else:
-            raise RoomNotAvailableException(booking_data.room_id)
+            raise RoomNotAvailableException()
 
-    async def get_bookings_with_today_chekin(self):
+    async def get_bookings_with_today_checkin(self):
 
         query = select(self.model).filter(self.model.date_from == date.today())
 
