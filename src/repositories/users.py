@@ -1,19 +1,13 @@
-from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import insert, select
+
+from src.exceptions import UserAlreadyExistsException
 from src.repositories.base import BaseRepository
 from src.models.users import UsersModel
 from src.repositories.mapper.base import DataMapper
 from src.repositories.mapper.mappers import UserDataMapper, UserDataWithHashedPassword
-from src.schemas.users import SUser, SUserWithHashedPassword
-
-
-class UserAlreadyExists(HTTPException):
-    def __init__(self):
-        super().__init__(
-            status_code=409, detail="Пользователь с таким email уже существует"
-        )
+from src.schemas.users import SUserWithHashedPassword
 
 
 class UsersRepository(BaseRepository):
@@ -30,8 +24,8 @@ class UsersRepository(BaseRepository):
 
             return self.mapper.map_to_schema(model)
 
-        except IntegrityError as e:
-            raise UserAlreadyExists()
+        except IntegrityError:
+            raise UserAlreadyExistsException()
 
     async def get_user_with_hashed_password(
         self, email: EmailStr

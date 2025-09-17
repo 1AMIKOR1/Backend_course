@@ -2,6 +2,7 @@ from datetime import date
 
 from sqlalchemy import func, select
 
+from src.exceptions import InvalidDateRangeException
 from src.models.bookings import BookingsModel
 from src.models.rooms import RoomsModel
 
@@ -14,6 +15,8 @@ def rooms_ids_free(
     price_to: int | None = None,
     title: str | None = None,
 ):
+    if date_from > date_to:
+        raise InvalidDateRangeException
     rooms_booked = (
         select(BookingsModel.room_id, func.count("*").label("booked_rooms"))
         .select_from(BookingsModel)

@@ -1,6 +1,7 @@
 from datetime import date
-from typing import Any, Tuple
-from sqlalchemy import select, func, select
+from sqlalchemy import func, select
+
+from src.exceptions import InvalidDateRangeException
 from src.models.rooms import RoomsModel
 from src.repositories.mapper.base import DataMapper
 from src.repositories.mapper.mappers import HotelDataMapper
@@ -39,6 +40,10 @@ class HotelsRepository(BaseRepository):
         location: str,
         title: str,
     ):
+
+        # if date_from > date_to:
+        #     raise InvalidDateRangeException
+
         rooms_ids_to_get = rooms_ids_free(
             date_from=date_from,
             date_to=date_to,

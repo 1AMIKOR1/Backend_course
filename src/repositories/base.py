@@ -2,7 +2,7 @@ from sqlalchemy import insert, select, update, delete
 
 from pydantic import BaseModel
 
-from src.database import Base, engine
+from src.exceptions import ObjectNotFoundException
 from src.repositories.mapper.base import DataMapper
 
 
@@ -67,20 +67,35 @@ class BaseRepository:
         await self.session.execute(add_stmt)
 
     async def delete(self, *filters, **filter_by) -> None:
-        delete_stmt = delete(self.model)
+        query = select(self.model)
+        if filters:
+            query = query.where(*filters)
+        if filter_by:
+            query = query.filter_by(**filter_by)
 
+        result = await self.session.execute(query)
+        existing_records = result.scalars().all()
+        print(f"Filter by: {filter_by}")  # 🔍 Отладка
+        print(f"Existing records: {existing_records}")  # 🔍 Отладка
+
+        if not existing_records:
+            print("Raising ObjectNotFoundException")  # 🔍 Отладка
+            raise ObjectNotFoundException()
+
+        delete_stmt = delete(self.model)
+        if filters:
+            delete_stmt = delete_stmt.where(*filters)
         if filter_by:
             delete_stmt = delete_stmt.filter_by(**filter_by)
 
-        if filters:
-            delete_stmt = delete_stmt.filter(*filters)
-
         await self.session.execute(delete_stmt)
+        await self.session.commit()
 
     async def edit(
         self, data: BaseModel, exclude_unset: bool = False, **filter_by
     ) -> None:
-
+        if not await self.get_one_or_none(**filter_by):
+            raise ObjectNotFoundException()
         edit_stmt = (
             update(self.model)
             .filter_by(**filter_by)

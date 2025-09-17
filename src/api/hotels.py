@@ -1,9 +1,11 @@
 from datetime import date
-from fastapi import APIRouter, Body, Query
+
+from fastapi import APIRouter, Body, Query, HTTPException
 
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep, PaginationDep
+from src.exceptions import InvalidDateRangeException, HotelNotFoundHTTPException, ObjectNotFoundException
 from src.schemas.hotels import SHotelAdd, SHotelGet, SHotelPatch
 
 
@@ -37,19 +39,27 @@ async def get_hotels(
     location: str | None = Query(None, description="Адрес отеля"),
     title: str | None = Query(None, description="Название отеля"),
 ):
-    return await db.hotels.get_filtered_free_hotels(
-        date_from=date_from,
-        date_to=date_to,
-        limit=pagination.per_page,
-        offset=(pagination.per_page * (pagination.page - 1)),
-        title=title,
-        location=location,
-    )
+    try:
+        hotels = await db.hotels.get_filtered_free_hotels(
+            date_from=date_from,
+            date_to=date_to,
+            limit=pagination.per_page,
+            offset=(pagination.per_page * (pagination.page - 1)),
+            title=title,
+            location=location,
+        )
+        return hotels
+    except InvalidDateRangeException as e:
+        raise HTTPException(status_code=400, detail=e.detail)
+
 
 
 @router.get("/{hotel_id}", summary="Получение отеля по id", response_model=SHotelGet)
 async def get_hotel(db: DBDep, hotel_id: int):
-    return await db.hotels.get_one_or_none(id=hotel_id)
+    hotels = await db.hotels.get_one_or_none(id=hotel_id)
+    if not hotels:
+        raise HotelNotFoundHTTPException
+    return hotels
 
 
 @router.post("/", summary="Добавление нового отеля")
@@ -63,9 +73,12 @@ async def create_hotels(
 
 @router.delete("/{hotel_id}", summary="Удаление отеля по id")
 async def delete_hotel(db: DBDep, hotel_id: int) -> dict[str, str]:
-    await db.hotels.delete(id=hotel_id)
-    await db.commit()
-    return {"status": "OK"}
+    try:
+        await db.hotels.delete(id=hotel_id)
+        await db.commit()
+        return {"status": "OK"}
+    except ObjectNotFoundException:
+        raise HotelNotFoundHTTPException
 
 
 @router.put("/{hotel_id}", summary="Обновление отеля по id")
