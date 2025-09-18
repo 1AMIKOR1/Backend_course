@@ -1,27 +1,24 @@
-from contextlib import asynccontextmanager
-from fastapi import FastAPI
-import uvicorn
-
 import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
-
-from fastapi_cache import FastAPICache
-from fastapi_cache.backends.redis import RedisBackend
-
-# from fastapi_cache.backends.inmemory import InMemoryBackend чтобы импользовать ОЗУ вместо Redis
-
-from src.config import settings
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from src.init import redis_manager
+import uvicorn
+from fastapi import FastAPI
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
 
-from src.api.hotels import router as hotels_router
-from src.api.rooms import router as rooms_router
 from src.api.auth import router as auth_router
 from src.api.booking import router as booking_router
 from src.api.facilities import router as facilities_router
+from src.api.hotels import router as hotels_router
 from src.api.images import router as images_router
+from src.api.rooms import router as rooms_router
+
+# from fastapi_cache.backends.inmemory import InMemoryBackend чтобы импользовать ОЗУ вместо Redis
+from src.config import settings
+from src.init import redis_manager
 
 
 @asynccontextmanager
@@ -39,7 +36,7 @@ if settings.MODE == "TEST":
     # FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, title="MyBookingApp")
 
 app.include_router(auth_router)
 app.include_router(hotels_router)

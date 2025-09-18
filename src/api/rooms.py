@@ -1,14 +1,15 @@
 from datetime import date
-from fastapi import APIRouter, Body, Query, HTTPException
 
+from fastapi import APIRouter, Body, HTTPException, Query
+
+from src.api.dependencies import DBDep, PaginationDep
 from src.exceptions import (
+    HotelNotFoundHTTPException,
     InvalidDateRangeException,
     ObjectNotFoundException,
     RoomNotFoundHTTPException,
-    HotelNotFoundHTTPException,
 )
 from src.schemas.facilities import SRoomFacilityAdd
-from src.api.dependencies import DBDep, PaginationDep
 from src.schemas.rooms import (
     SRoomAdd,
     SRoomAddRequest,
@@ -48,7 +49,6 @@ async def get_rooms(
     title: str | None = Query(None, description="Название номера"),
 ) -> list[SRoomWithRels] | None:
     hotel = await db.hotels.get_one_or_none(id=hotel_id)
-
     if not hotel:
         raise HotelNotFoundHTTPException
     try:
@@ -68,10 +68,10 @@ async def get_rooms(
 
 @router.get("/{hotel_id}/rooms/{room_id}", summary="Получение номера по id")
 async def get_room(db: DBDep, hotel_id: int, room_id: int):
-    rooms = await db.rooms.get_one_or_none(id=room_id, hotel_id=hotel_id)
-    if not rooms:
+    room = await db.rooms.get_one_or_none(id=room_id, hotel_id=hotel_id)
+    if not room:
         raise RoomNotFoundHTTPException
-    return rooms
+    return room
 
 
 @router.post("/{hotel_id}/rooms", summary="Добавление нового номера")
@@ -81,9 +81,8 @@ async def create_room(
     room_data: SRoomAddRequest = Body(openapi_examples=rooms_examples),
 ):
     hotel = await db.hotels.get_one_or_none(id=hotel_id)
-
     if not hotel:
-        raise HTTPException(404, "Отеля не существует")
+        raise HotelNotFoundHTTPException
     _room_data = SRoomAdd(hotel_id=hotel_id, **room_data.model_dump())
     # print(_room_data)
     room: None | SRoomGet = await db.rooms.add(_room_data)
@@ -100,6 +99,9 @@ async def create_room(
 
 @router.delete("/{hotel_id}/rooms/{room_id}", summary="Удаление номера по id")
 async def delete_room(db: DBDep, hotel_id: int, room_id: int):
+    hotel = await db.hotels.get_one_or_none(id=hotel_id)
+    if not hotel:
+        raise HotelNotFoundHTTPException
     try:
         await db.rooms.delete(id=room_id, hotel_id=hotel_id)
         await db.commit()
@@ -115,9 +117,11 @@ async def update_room(
     room_id: int,
     room_data: SRoomAddRequest = Body(openapi_examples=rooms_examples),
 ):
+    hotel = await db.hotels.get_one_or_none(id=hotel_id)
+    if not hotel:
+        raise HotelNotFoundHTTPException
     _room_data = SRoomAdd(hotel_id=hotel_id, **room_data.model_dump())
     try:
-
         if room_data.facilities_ids is not None and room_data.facilities_ids != []:
             await db.rooms_facilities.edit_facilities(room_id, room_data.facilities_ids)
 
@@ -137,6 +141,9 @@ async def modify_room(
     room_id: int,
     room_data: SRoomPatchRequest = Body(openapi_examples=rooms_examples),
 ):
+    hotel = await db.hotels.get_one_or_none(id=hotel_id)
+    if not hotel:
+        raise HotelNotFoundHTTPException
     _room_data = SRoomPatch(
         hotel_id=hotel_id, **room_data.model_dump(exclude_unset=True)
     )

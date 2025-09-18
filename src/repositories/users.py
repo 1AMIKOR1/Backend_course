@@ -1,3 +1,4 @@
+from asyncpg import UniqueViolationError
 from sqlalchemy.exc import IntegrityError
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import insert, select
@@ -24,8 +25,11 @@ class UsersRepository(BaseRepository):
 
             return self.mapper.map_to_schema(model)
 
-        except IntegrityError:
-            raise UserAlreadyExistsException()
+        except IntegrityError as ex:
+            if isinstance(ex.orig.__cause__, UniqueViolationError):
+                raise UserAlreadyExistsException from ex
+            else:
+                raise ex
 
     async def get_user_with_hashed_password(
         self, email: EmailStr

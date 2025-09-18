@@ -1,8 +1,10 @@
+from asyncpg import UniqueViolationError
 from sqlalchemy import insert, select, update, delete
 
 from pydantic import BaseModel
+from sqlalchemy.exc import IntegrityError
 
-from src.exceptions import ObjectNotFoundException
+from src.exceptions import ObjectNotFoundException, ObjectAlreadyExistsException
 from src.repositories.mapper.base import DataMapper
 
 
@@ -48,15 +50,23 @@ class BaseRepository:
         return self.mapper.map_to_schema(model)
 
     async def add(self, data: BaseModel):
-        add_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
-        # print(add_stmt.compile(compile_kwargs={"literal_binds": True}))
+        try:
+            add_stmt = (
+                insert(self.model).values(**data.model_dump()).returning(self.model)
+            )
+            # print(add_stmt.compile(compile_kwargs={"literal_binds": True}))
 
-        result = await self.session.execute(add_stmt)
+            result = await self.session.execute(add_stmt)
 
-        model = result.scalars().one_or_none()
-        if model is None:
-            return None
-        return self.mapper.map_to_schema(model)
+            model = result.scalars().one_or_none()
+            if model is None:
+                return None
+            return self.mapper.map_to_schema(model)
+        except IntegrityError as ex:
+            if isinstance(ex.orig.__cause__, UniqueViolationError):
+                raise ObjectAlreadyExistsException from ex
+            else:
+                raise ex
 
     async def add_bulk(self, data: list[BaseModel]) -> None | BaseModel:
         """
@@ -75,11 +85,7 @@ class BaseRepository:
 
         result = await self.session.execute(query)
         existing_records = result.scalars().all()
-        print(f"Filter by: {filter_by}")  # 🔍 Отладка
-        print(f"Existing records: {existing_records}")  # 🔍 Отладка
-
         if not existing_records:
-            print("Raising ObjectNotFoundException")  # 🔍 Отладка
             raise ObjectNotFoundException()
 
         delete_stmt = delete(self.model)

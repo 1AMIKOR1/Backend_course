@@ -5,7 +5,11 @@ from fastapi import APIRouter, Body, Query, HTTPException
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep, PaginationDep
-from src.exceptions import InvalidDateRangeException, HotelNotFoundHTTPException, ObjectNotFoundException
+from src.exceptions import (
+    InvalidDateRangeException,
+    HotelNotFoundHTTPException,
+    ObjectNotFoundException,
+)
 from src.schemas.hotels import SHotelAdd, SHotelGet, SHotelPatch
 
 
@@ -53,13 +57,12 @@ async def get_hotels(
         raise HTTPException(status_code=400, detail=e.detail)
 
 
-
 @router.get("/{hotel_id}", summary="Получение отеля по id", response_model=SHotelGet)
 async def get_hotel(db: DBDep, hotel_id: int):
-    hotels = await db.hotels.get_one_or_none(id=hotel_id)
-    if not hotels:
+    hotel = await db.hotels.get_one_or_none(id=hotel_id)
+    if not hotel:
         raise HotelNotFoundHTTPException
-    return hotels
+    return hotel
 
 
 @router.post("/", summary="Добавление нового отеля")
