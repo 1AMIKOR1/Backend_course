@@ -1,6 +1,8 @@
 import asyncio
+import logging
 import os
 from time import sleep
+
 from PIL import Image
 
 from src.database import async_session_maker_null_pool
@@ -13,12 +15,14 @@ def test_task():
     sleep(5)
     print("Test task done")
 
+
 @celery_instance.task
 def resize_and_save_images(
-        input_image_path: str,
-        output_dir: str ='src/static/images',
-        widths: list|None = None):
-
+    input_image_path: str,
+    output_dir: str = "src/static/images",
+    widths: list | None = None,
+):
+    logging.debug(f"Вызывается функция с {input_image_path=}")
     os.makedirs(output_dir, exist_ok=True)
     if not widths:
         widths = [1000, 500, 200]
@@ -44,14 +48,18 @@ def resize_and_save_images(
 
             # Сохраняем изображение
             resized_img.save(output_path)
-            print(f"Сохранено: {output_path}")
+            logging.info(
+                f"Изображение сохранено в размерах:{widths} в папку:{output_path}"
+            )
 
 
 async def get_bookings_with_today_chekin_helper():
-    print("START")
+    logging.debug("START")
     async with DBManager(session_factory=async_session_maker_null_pool) as db:
         bookings = await db.bookings.get_bookings_with_today_checkin()
-        print(f"{bookings=}")
+        logging.debug(f"{bookings=}")
+
+
 @celery_instance.task(name="booking_today_chekin")
 def send_emails_to_user_with_today_checkin():
     asyncio.run(get_bookings_with_today_chekin_helper())

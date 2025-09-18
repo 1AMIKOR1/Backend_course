@@ -1,10 +1,11 @@
-from asyncpg import UniqueViolationError
-from sqlalchemy import insert, select, update, delete
+import logging
 
+from asyncpg import UniqueViolationError
 from pydantic import BaseModel
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.exc import IntegrityError
 
-from src.exceptions import ObjectNotFoundException, ObjectAlreadyExistsException
+from src.exceptions import ObjectAlreadyExistsException, ObjectNotFoundException
 from src.repositories.mapper.base import DataMapper
 
 
@@ -17,9 +18,12 @@ class BaseRepository:
         self.session = session
 
     async def get_filtered(
-        self, limit: int | None = None, offset: int | None = None, *filter, **filter_by
+        self,
+        limit: int | None = None,
+        offset: int | None = None,
+        *filter,
+        **filter_by,
     ) -> list[BaseModel]:
-
         filter_by = {k: v for k, v in filter_by.items() if v is not None}
         filter_ = [v for v in filter if v is not None]
 
@@ -34,9 +38,7 @@ class BaseRepository:
         return result
 
     async def get_all(self, *args, **kwargs) -> list[BaseModel]:
-        """
-        Возращает все записи в БД из связаной таблицы
-        """
+        """Возращает все записи в БД из связаной таблицы"""
         return await self.get_filtered(*args, **kwargs)
 
     async def get_one_or_none(self, **filter_by) -> None | BaseModel:
@@ -62,10 +64,18 @@ class BaseRepository:
             if model is None:
                 return None
             return self.mapper.map_to_schema(model)
+
         except IntegrityError as ex:
+            logging.error(
+                f"Не удалось добавить данные в БД тип ошибки:{type(ex.orig.__cause__)=}"
+            )
+
             if isinstance(ex.orig.__cause__, UniqueViolationError):
                 raise ObjectAlreadyExistsException from ex
             else:
+                logging.error(
+                    f"Не незнакомая ошибка: тип ошибки:{type(ex.orig.__cause__)=}"
+                )
                 raise ex
 
     async def add_bulk(self, data: list[BaseModel]) -> None | BaseModel:
