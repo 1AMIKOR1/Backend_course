@@ -1,12 +1,9 @@
-import json
-from fastapi import APIRouter, Body, Query
-
+from fastapi import APIRouter, Body
 from fastapi_cache.decorator import cache
 
-from src.api.dependencies import DBDep, PaginationDep
-
-from src.schemas.facilities import SFacilityGet, SFacilityAdd, SFacilityPatch
-from src.tasks.celery_tasks import test_task
+from src.api.dependencies import DBDep
+from src.schemas.facilities import SFacilityGet, SFacilityAdd
+from src.services.facilities import FacilityService
 
 router = APIRouter(prefix="/facilities", tags=["Удобства"])
 
@@ -15,14 +12,15 @@ router = APIRouter(prefix="/facilities", tags=["Удобства"])
 @cache(expire=10)
 async def get_facilities(db: DBDep) -> list[SFacilityGet] | None:
     # print("Иду в БД.")
-    return await db.facilities.get_filtered()
+    facilities = await FacilityService(db).get_facilities()
+
+    return facilities
 
 
 @router.post("/", summary="Добавление нового удобства")
 async def add_facility(
-    db: DBDep, facility: SFacilityAdd = Body(openapi_example="холодильник")
+    db: DBDep, facility_data: SFacilityAdd = Body(openapi_example="холодильник")
 ) -> dict | None:
-    data: None | SFacilityGet = await db.facilities.add(facility)
-    await db.commit()
-    test_task.delay()
-    return {"status": "OK", "data": data}
+    facility = await FacilityService(db).create_facility(facility_data)
+
+    return {"status": "OK", "data": facility}

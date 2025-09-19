@@ -1,14 +1,14 @@
 from datetime import date
+
 from sqlalchemy import func, select
 
-from src.exceptions import InvalidDateRangeException
+from src.models.hotels import HotelsModel
 from src.models.rooms import RoomsModel
+from src.repositories.base import BaseRepository
 from src.repositories.mapper.base import DataMapper
 from src.repositories.mapper.mappers import HotelDataMapper
 from src.repositories.utils import rooms_ids_free
 from src.schemas.hotels import SHotelGet
-from src.models.hotels import HotelsModel
-from src.repositories.base import BaseRepository
 
 
 class HotelsRepository(BaseRepository):

@@ -1,9 +1,14 @@
+from fastapi import APIRouter, Body
 
-from fastapi import APIRouter, Body, HTTPException
 from src.api.dependencies import DBDep, PaginationDep, UserIdDep
-from src.exceptions import RoomNotAvailableException
-from src.schemas.bookings import SBookingGet, SBookingAdd, SBookingAddRequest
-
+from src.exceptions.auth import UserNotFoundException, UserNotFoundHTTPException
+from src.exceptions.booking import (
+    RoomNotAvailableException,
+    RoomNotAvailableHTTPException,
+)
+from src.exceptions.rooms import RoomNotFoundException, RoomNotFoundHTTPException
+from src.schemas.bookings import SBookingGet, SBookingAddRequest
+from src.services.booking import BookingService
 
 router = APIRouter(prefix="/bookings", tags=["Бронирование"])
 
@@ -26,20 +31,20 @@ async def get_bookings(
     db: DBDep, pagination: PaginationDep
 ) -> list[SBookingGet] | None:
 
-    return await db.bookings.get_filtered(
-        limit=pagination.per_page, offset=(pagination.per_page * (pagination.page - 1))
-    )
+    return await BookingService(db).get_filtered_booking(pagination)
 
 
 @router.get("/me", summary="Просмотр бронирований текущего пользователя")
 async def get_bookings_current_user(
     db: DBDep, user_id: UserIdDep, pagination: PaginationDep
 ) -> list[SBookingGet] | None:
-    return await db.bookings.get_filtered(
-        limit=pagination.per_page,
-        offset=(pagination.per_page * (pagination.page - 1)),
-        user_id=user_id,
-    )
+    try:
+        booking = await BookingService(db).get_bookings_current_user(
+            user_id, pagination
+        )
+    except UserNotFoundException:
+        raise UserNotFoundHTTPException
+    return booking
 
 
 @router.post("/", summary="Бронирование номера")
@@ -48,21 +53,11 @@ async def create_booking(
     user_id: UserIdDep,
     booking_data: SBookingAddRequest = Body(openapi_examples=bookings_examples),
 ):
-    room = await db.rooms.get_one_or_none(id=booking_data.room_id)
-
-    if room is None:
-        raise HTTPException(404, "Номера не существует!")
-    else:
-        price = room.price
-
-    _booking_data = SBookingAdd(
-        user_id=user_id, price=price, **booking_data.model_dump()
-    )
     try:
-        booking: SBookingGet = await db.bookings.add_booking(
-            _booking_data, room.hotel_id
-        )
-    except RoomNotAvailableException as e:
-        raise HTTPException(status_code=409, detail=str(e))
-    await db.commit()
+        booking = await BookingService(db).create_booking(user_id, booking_data)
+    except RoomNotFoundException:
+        raise RoomNotFoundHTTPException
+
+    except RoomNotAvailableException:
+        raise RoomNotAvailableHTTPException
     return {"status": "OK", "data": booking}

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.exc import IntegrityError
 
-from src.exceptions import ObjectAlreadyExistsException, ObjectNotFoundException
+from src.exceptions.base import ObjectAlreadyExistsException
 from src.repositories.mapper.base import DataMapper
 
 
@@ -95,8 +95,8 @@ class BaseRepository:
 
         result = await self.session.execute(query)
         existing_records = result.scalars().all()
-        if not existing_records:
-            raise ObjectNotFoundException()
+        # if not existing_records:
+        #     raise ObjectNotFoundException()
 
         delete_stmt = delete(self.model)
         if filters:
@@ -110,8 +110,8 @@ class BaseRepository:
     async def edit(
         self, data: BaseModel, exclude_unset: bool = False, **filter_by
     ) -> None:
-        if not await self.get_one_or_none(**filter_by):
-            raise ObjectNotFoundException()
+        # if not await self.get_one_or_none(**filter_by):
+        #     raise ObjectNotFoundException()
         edit_stmt = (
             update(self.model)
             .filter_by(**filter_by)

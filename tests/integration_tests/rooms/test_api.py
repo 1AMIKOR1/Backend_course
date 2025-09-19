@@ -16,7 +16,7 @@ async def test_get_rooms(hotel_id, date_from, date_to, status_code, ac):
     assert response.status_code == status_code
 
 
-parameters_test_add_rooms = (
+parameters_test_add_room = (
     "hotel_id",
     "title",
     "description",
@@ -24,14 +24,14 @@ parameters_test_add_rooms = (
     "quantity",
     "status_code",
 )
-values_test_add_rooms = [
+values_test_add_room = [
     (1, "эконом 2-х", "двухместный номер", 2000, 5, 200),
     (1, "люкс 2-х", "двухместный номер", 5000, 5, 200),
     (2970, "эконом 2-х", "двухместный номер", 2000, 5, 404),
 ]
 
 
-@pytest.mark.parametrize(parameters_test_add_rooms, values_test_add_rooms)
+@pytest.mark.parametrize(parameters_test_add_room, values_test_add_room)
 async def test_add_room(hotel_id, title, description, price, quantity, status_code, ac):
     json_request = {
         "title": title,
@@ -41,6 +41,29 @@ async def test_add_room(hotel_id, title, description, price, quantity, status_co
     }
     response = await ac.post(url=f"/hotels/{hotel_id}/rooms", json=json_request)
     # print(f"{response.json()=}")
+    assert response.status_code == status_code
+
+
+parameters_test_get_room = (
+    "hotel_id",
+    "room_id",
+    "status_code",
+)
+values_test_get_room = [
+    (1, 5, 200),
+    (1, 6, 200),
+    (2970, 5, 404),
+]
+
+
+@pytest.mark.parametrize(parameters_test_get_room, values_test_get_room)
+async def test_get_room(hotel_id, room_id, status_code, ac):
+
+    response = await ac.get(url=f"/hotels/{hotel_id}/rooms/{room_id}")
+    # print(f"{response.json()=}")
+    room = response.json()
+    if response.status_code == 200:
+        assert room["id"] == room_id
     assert response.status_code == status_code
 
 

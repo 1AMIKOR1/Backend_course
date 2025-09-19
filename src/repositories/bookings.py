@@ -2,7 +2,7 @@ from datetime import date
 
 from sqlalchemy import select
 
-from src.exceptions import RoomNotAvailableException
+from src.exceptions.booking import RoomNotAvailableException
 from src.models.bookings import BookingsModel
 from src.repositories.base import BaseRepository
 from src.repositories.mapper.mappers import BookingDataMapper
