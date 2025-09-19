@@ -22,6 +22,11 @@ class InvalidTokenHTTPException(MyAppHTTPException):
     detail = "Неверный токен доступа"
 
 
+class NoAccessTokenHTTPException(MyAppHTTPException):
+    detail = "Вы не предоставили токен доступа"
+    status_code = 401
+
+
 class UserAlreadyExistsHTTPException(MyAppHTTPException):
     status_code = 409
     detail = "Пользователь с таким email уже существует"
