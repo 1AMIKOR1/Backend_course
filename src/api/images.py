@@ -7,4 +7,4 @@ router = APIRouter(prefix="/images", tags=["Работа с изображени
 
 @router.post("")
 def upload_image(file: UploadFile):
-    ImageService.upload_image(file)
+    ImageService().upload_image(file)

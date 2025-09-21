@@ -79,7 +79,10 @@ async def delete_hotel(db: DBDep, hotel_id: int) -> dict[str, str]:
 async def update_hotel(
     db: DBDep, hotel_id: int, hotel_data: SHotelAdd
 ) -> dict[str, str]:
-    await HotelService(db).edit_hotel(hotel_data=hotel_data, hotel_id=hotel_id)
+    try:
+        await HotelService(db).edit_hotel(hotel_data=hotel_data, hotel_id=hotel_id)
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException
     return {"status": "OK"}
 
 
@@ -87,7 +90,10 @@ async def update_hotel(
 async def modify_hotel(
     db: DBDep, hotel_id: int, hotel_data: SHotelPatch
 ) -> dict[str, str]:
-    await HotelService(db).edit_hotel_partially(
+    try:
+        await HotelService(db).edit_hotel_partially(
         hotel_data=hotel_data, hotel_id=hotel_id
-    )
+        )
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException
     return {"status": "OK"}

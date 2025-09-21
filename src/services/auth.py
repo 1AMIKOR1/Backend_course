@@ -6,6 +6,7 @@ from passlib.context import CryptContext
 from src.config import settings
 from src.exceptions.auth import (
     InvalidJWTTokenException,
+    UserAlreadyExistsException,
     UserNotFoundException,
     InvalidPasswordException,
 )
@@ -40,6 +41,9 @@ class AuthService(BaseService):
             raise InvalidJWTTokenException from ex
 
     async def register_user(self, data: SUserRequestAdd):
+        user = await self.db.users.get_one_or_none(email=data.email)
+        if user:
+            raise UserAlreadyExistsException
         hashed_password: str = AuthService().hash_password(data.password)
         new_user_data = SUserAdd(email=data.email, hashed_password=hashed_password)
         await self.db.users.add(new_user_data)
