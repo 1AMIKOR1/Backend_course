@@ -64,6 +64,22 @@ services:
    
     volumes:
       - shared-images:/app/src/static/images
+  booking_nginx:
+    image: nginx:latest
+    container_name: booking_nginx
+    ports:
+      - "80:80"
+      - "433:433"
+    networks:
+      - myNetwork
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./logs/nginx:/var/log/nginx
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/lib/letsencrypt:/var/lib/letsencrypt:ro
+    depends_on:
+      - booking_back_service  # ждём, пока бэкенд станет доступен
+    restart: unless-stopped
 
   booking_celery_worker_service:
     container_name: 'booking_celery_worker'
@@ -100,5 +116,4 @@ networks:
 
 volumes:
   pg-booking-data:
-
   shared-images:
