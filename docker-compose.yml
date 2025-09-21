@@ -1,0 +1,102 @@
+services:
+  booking_db_service:
+    image: postgres:16
+    container_name: booking_db
+    ports:
+      - "6432:5432"
+    environment:
+      POSTGRES_USER: abcde
+      POSTGRES_PASSWORD: abcde
+      POSTGRES_DB: booking
+    networks:
+      - myNetwork
+    volumes:
+      - pg-booking-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U abcde -d booking"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  booking_cache_service:
+    image: redis:7.4
+    container_name: booking_cache
+    ports:
+      - "7379:6379"
+    networks:
+      - myNetwork
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  booking_migrations_service:
+    container_name: 'booking_migrations'
+    build:
+      context: .
+    networks:
+      - myNetwork
+    env_file:
+      - .env
+    depends_on:
+      booking_db_service:
+        condition: service_healthy
+      booking_cache_service:
+        condition: service_healthy
+    command: ["alembic", "upgrade", "head"]
+
+  booking_back_service:
+    container_name: 'booking_back'
+    build:
+      context: .
+    ports:
+      - "7777:8000"
+    networks:
+      - myNetwork
+    env_file:
+      - .env
+    depends_on:
+      booking_migrations_service:
+        condition: service_completed_successfully
+   
+    volumes:
+      - shared-images:/app/src/static/images
+
+  booking_celery_worker_service:
+    container_name: 'booking_celery_worker'
+    build:
+      context: .
+    networks:
+      - myNetwork
+    env_file:
+      - .env
+    depends_on:
+      booking_migrations_service:
+        condition: service_completed_successfully
+    command: "celery --app=src.tasks.celery_app:celery_instance worker -l INFO"
+   
+    volumes:
+      - shared-images:/app/src/static/images
+
+  booking_celery_beat_service:
+    container_name: 'booking_celery_beat'
+    build:
+      context: .
+    networks:
+      - myNetwork
+    env_file:
+      - .env
+    depends_on:
+      booking_migrations_service:
+        condition: service_completed_successfully
+    command: "celery --app=src.tasks.celery_app:celery_instance beat -l INFO"
+
+networks:
+  myNetwork:
+    external: true
+
+volumes:
+  pg-booking-data:
+
+  shared-images:
