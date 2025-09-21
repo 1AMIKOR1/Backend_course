@@ -10,9 +10,11 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASS: str
     DB_NAME: str
-
     REDIS_HOST: str
     REDIS_PORT: int
+    POSTGRES_USER:str
+    POSTGRES_PASSWORD:str
+    POSTGRES_DB:str
 
     @property
     def REDIS_URL(self) -> str:
