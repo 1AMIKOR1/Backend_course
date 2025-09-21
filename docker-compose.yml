@@ -69,7 +69,7 @@ services:
     container_name: booking_nginx
     ports:
       - "80:80"
-      - "433:433"
+      - "443:443"
     networks:
       - myNetwork
     volumes:
