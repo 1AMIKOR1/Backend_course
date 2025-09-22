@@ -77,8 +77,9 @@ services:
       - ./logs/nginx:/var/log/nginx
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /var/lib/letsencrypt:/var/lib/letsencrypt:ro
+      - ./web_nginx:/var/www/html:ro  
     depends_on:
-      - booking_back_service  # ждём, пока бэкенд станет доступен
+      - booking_back_service  
     restart: unless-stopped
 
   booking_celery_worker_service:
