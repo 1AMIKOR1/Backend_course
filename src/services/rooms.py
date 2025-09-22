@@ -72,7 +72,9 @@ class RoomService(BaseService):
     async def delete_room(self, room_id: int, hotel_id: int):
         await HotelService(self.db).get_hotel_with_check(hotel_id)
         await self.get_room_with_check(room_id, hotel_id)
-
+        # sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.ForeignKeyViolationError'>: UPDATE или DELETE в таблице "rooms" нарушает ограничение внешнего ключа "bookings_room_id_fkey" таблицы "bookings"
+        await self.db.rooms_facilities.delete(room_id=room_id)
+        await self.db.bookings.delete(room_id=room_id)
         await self.db.rooms.delete(id=room_id, hotel_id=hotel_id)
         await self.db.commit()
 

@@ -54,3 +54,4 @@ class HotelService(BaseService):
         hotel = await self.db.hotels.get_one_or_none(id=hotel_id)
         if not hotel:
             raise HotelNotFoundException
+        return hotel
