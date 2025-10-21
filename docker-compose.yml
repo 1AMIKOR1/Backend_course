@@ -48,8 +48,6 @@ services:
       - /var/lib/letsencrypt:/var/lib/letsencrypt:ro
       - ./web_nginx:/var/www/html:ro
 
-    restart: unless-stopped
-
 networks:
   myNetwork:
     external: true
