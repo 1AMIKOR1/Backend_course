@@ -33,37 +33,6 @@ services:
       timeout: 5s
       retries: 5
 
-  booking_migrations_service:
-    container_name: 'booking_migrations'
-    build:
-      context: .
-    networks:
-      - myNetwork
-    env_file:
-      - .env
-    depends_on:
-      booking_db_service:
-        condition: service_healthy
-      booking_cache_service:
-        condition: service_healthy
-    command: ["alembic", "upgrade", "head"]
-
-  booking_back_service:
-    container_name: 'booking_back'
-    build:
-      context: .
-    ports:
-      - "7777:8000"
-    networks:
-      - myNetwork
-    env_file:
-      - .env
-    depends_on:
-      booking_migrations_service:
-        condition: service_completed_successfully
-   
-    volumes:
-      - shared-images:/app/src/static/images
   booking_nginx:
     image: nginx:latest
     container_name: booking_nginx
@@ -82,39 +51,9 @@ services:
       - booking_back_service  
     restart: unless-stopped
 
-  booking_celery_worker_service:
-    container_name: 'booking_celery_worker'
-    build:
-      context: .
-    networks:
-      - myNetwork
-    env_file:
-      - .env
-    depends_on:
-      booking_migrations_service:
-        condition: service_completed_successfully
-    command: "celery --app=src.tasks.celery_app:celery_instance worker -l INFO"
-   
-    volumes:
-      - shared-images:/app/src/static/images
-
-  booking_celery_beat_service:
-    container_name: 'booking_celery_beat'
-    build:
-      context: .
-    networks:
-      - myNetwork
-    env_file:
-      - .env
-    depends_on:
-      booking_migrations_service:
-        condition: service_completed_successfully
-    command: "celery --app=src.tasks.celery_app:celery_instance beat -l INFO"
-
 networks:
   myNetwork:
     external: true
 
 volumes:
   pg-booking-data:
-  shared-images:
