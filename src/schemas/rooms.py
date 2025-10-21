@@ -10,21 +10,24 @@ class SRoomAddRequest(BaseModel):
     quantity: int
     facilities_ids: list[int] | None = None
 
+
 class SRoomAdd(BaseModel):
     hotel_id: int
     title: str
     description: str | None = None
     price: int
     quantity: int
-    
+
 
 class SRoomGet(SRoomAdd):
-    id: int 
+    id: int
     model_config = ConfigDict(from_attributes=True)
+
 
 class SRoomWithRels(SRoomGet):
     facilities: list[SFacilityGet]
-    
+
+
 class SRoomPatchRequest(BaseModel):
     title: str | None = None
     description: str | None = None

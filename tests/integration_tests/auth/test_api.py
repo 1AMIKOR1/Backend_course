@@ -2,10 +2,25 @@ import pytest
 
 parameters_test_user_auth = "password, email, register_status, login_status"
 values_test_user_auth = [
-    ("ihoud7gyvuUTGC6", "yfyy@ccc.com", 200, 200),  # Успешная регистрация и авторизация
-    ("ihoud7gyvuUTGC6", "yfyy@ccc.com", 409, 200),  # Попытка повторной регистрации
+    (
+        "ihoud7gyvuUTGC6",
+        "yfyy@ccc.com",
+        200,
+        200,
+    ),  # Успешная регистрация и авторизация
+    (
+        "ihoud7gyvuUTGC6",
+        "yfyy@ccc.com",
+        409,
+        200,
+    ),  # Попытка повторной регистрации
     ("wrong_password", "yfyy@ccc.com", 409, 401),  # Неверный пароль при логине
-    ("any_password", "nonexistent@test.com", 401, 401),  # Несуществующий пользователь
+    (
+        "any_password",
+        "nonexistent@test.com",
+        401,
+        401,
+    ),  # Несуществующий пользователь
     ("", "invalid-email", 422, 422),  # Невалидные данные
 ]
 

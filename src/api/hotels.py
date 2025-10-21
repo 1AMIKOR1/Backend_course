@@ -32,7 +32,9 @@ add_hotel_examples = {
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 
-@router.get("/", summary="Получение списка отелей", response_model=list[SHotelGet])
+@router.get(
+    "/", summary="Получение списка отелей", response_model=list[SHotelGet]
+)
 @cache(expire=10)
 async def get_hotels(
     db: DBDep,
@@ -52,7 +54,9 @@ async def get_hotels(
     return hotels
 
 
-@router.get("/{hotel_id}", summary="Получение отеля по id", response_model=SHotelGet)
+@router.get(
+    "/{hotel_id}", summary="Получение отеля по id", response_model=SHotelGet
+)
 async def get_hotel(db: DBDep, hotel_id: int):
     try:
         hotel = await HotelService(db).get_hotel(hotel_id=hotel_id)
@@ -83,7 +87,9 @@ async def update_hotel(
     db: DBDep, hotel_id: int, hotel_data: SHotelAdd
 ) -> dict[str, str]:
     try:
-        await HotelService(db).edit_hotel(hotel_data=hotel_data, hotel_id=hotel_id)
+        await HotelService(db).edit_hotel(
+            hotel_data=hotel_data, hotel_id=hotel_id
+        )
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException
     return {"status": "OK"}
@@ -95,7 +101,7 @@ async def modify_hotel(
 ) -> dict[str, str]:
     try:
         await HotelService(db).edit_hotel_partially(
-        hotel_data=hotel_data, hotel_id=hotel_id
+            hotel_data=hotel_data, hotel_id=hotel_id
         )
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException

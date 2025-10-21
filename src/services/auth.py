@@ -36,7 +36,9 @@ class AuthService(BaseService):
 
     def decode_token(self, token: str) -> dict:
         try:
-            return jwt.decode(token, settings.JWT_SECRET_KEY, [settings.JWT_ALGORITHM])
+            return jwt.decode(
+                token, settings.JWT_SECRET_KEY, [settings.JWT_ALGORITHM]
+            )
         except jwt.exceptions.DecodeError as ex:
             raise InvalidJWTTokenException from ex
 
@@ -45,12 +47,16 @@ class AuthService(BaseService):
         if user:
             raise UserAlreadyExistsException
         hashed_password: str = AuthService().hash_password(data.password)
-        new_user_data = SUserAdd(email=data.email, hashed_password=hashed_password)
+        new_user_data = SUserAdd(
+            email=data.email, hashed_password=hashed_password
+        )
         await self.db.users.add(new_user_data)
         await self.db.commit()
 
     async def login_user(self, user_data: SUserRequestAdd):
-        user = await self.db.users.get_user_with_hashed_password(email=user_data.email)
+        user = await self.db.users.get_user_with_hashed_password(
+            email=user_data.email
+        )
         if not user:
             raise UserNotFoundException
         if not self.verify_password(user_data.password, user.hashed_password):

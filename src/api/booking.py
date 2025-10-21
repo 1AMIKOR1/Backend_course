@@ -19,7 +19,11 @@ bookings_examples = {
     "normal": {
         "summary": "На неделю",
         "description": "Пример нормального объекта.",
-        "value": {"room_id": 2, "date_from": "2025-07-20", "date_to": "2025-07-27"},
+        "value": {
+            "room_id": 2,
+            "date_from": "2025-07-20",
+            "date_to": "2025-07-27",
+        },
     },
     "invalid": {
         "summary": "Эконом",
@@ -33,7 +37,6 @@ bookings_examples = {
 async def get_bookings(
     db: DBDep, pagination: PaginationDep
 ) -> list[SBookingGet] | None:
-
     return await BookingService(db).get_filtered_booking(pagination)
 
 

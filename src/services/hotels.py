@@ -6,7 +6,6 @@ from src.services.base import BaseService
 
 
 class HotelService(BaseService):
-
     async def get_filtered_free_hotels(
         self,
         pagination,
@@ -35,7 +34,6 @@ class HotelService(BaseService):
         return hotel
 
     async def delete_hotel(self, hotel_id: int):
-
         await self.get_hotel_with_check(hotel_id)
         await self.db.hotels.delete(id=hotel_id)
         await self.db.commit()
@@ -45,9 +43,13 @@ class HotelService(BaseService):
         await self.db.hotels.edit(data=hotel_data, id=hotel_id)
         await self.db.commit()
 
-    async def edit_hotel_partially(self, hotel_data: SHotelPatch, hotel_id: int):
+    async def edit_hotel_partially(
+        self, hotel_data: SHotelPatch, hotel_id: int
+    ):
         await self.get_hotel_with_check(hotel_id)
-        await self.db.hotels.edit(data=hotel_data, exclude_unset=True, id=hotel_id)
+        await self.db.hotels.edit(
+            data=hotel_data, exclude_unset=True, id=hotel_id
+        )
         await self.db.commit()
 
     async def get_hotel_with_check(self, hotel_id: int):

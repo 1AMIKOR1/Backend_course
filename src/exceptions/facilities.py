@@ -1,4 +1,3 @@
-
 from src.exceptions.base import MyAppException, MyAppHTTPException
 
 

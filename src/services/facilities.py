@@ -18,12 +18,13 @@ class FacilityService(BaseService):
         test_task.delay()
         # type: ignore
         return facility
-    async def check_existing_facility(self, title:str):
-        facility= await self.db.facilities.get_one_or_none(title=title)
+
+    async def check_existing_facility(self, title: str):
+        facility = await self.db.facilities.get_one_or_none(title=title)
         if facility:
             raise FacilityAlreadyExistsException
         return None
-        
+
     async def check_existing_facilities(self, facilities_ids: list[int]):
         existing_facility_ids = await self.get_facilities()
         existing_facility_ids = {f.id for f in existing_facility_ids}

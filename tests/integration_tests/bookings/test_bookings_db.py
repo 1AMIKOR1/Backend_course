@@ -19,7 +19,9 @@ async def test_booking_crud(db):
     )
     new_booking: SBookingGet = await db.bookings.add(booking_data)
 
-    finded_booking: SBookingGet = await db.bookings.get_one_or_none(id=new_booking.id)
+    finded_booking: SBookingGet = await db.bookings.get_one_or_none(
+        id=new_booking.id
+    )
 
     assert finded_booking
 

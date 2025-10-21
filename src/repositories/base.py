@@ -33,7 +33,9 @@ class BaseRepository:
             query = query.limit(limit).offset(offset)
         # print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
         result = await self.session.execute(query)
-        result = [self.mapper.map_to_schema(model) for model in result.scalars().all()]
+        result = [
+            self.mapper.map_to_schema(model) for model in result.scalars().all()
+        ]
 
         return result
 
@@ -54,7 +56,9 @@ class BaseRepository:
     async def add(self, data: BaseModel):
         try:
             add_stmt = (
-                insert(self.model).values(**data.model_dump()).returning(self.model)
+                insert(self.model)
+                .values(**data.model_dump())
+                .returning(self.model)
             )
             # print(add_stmt.compile(compile_kwargs={"literal_binds": True}))
 
@@ -82,7 +86,9 @@ class BaseRepository:
         """
         Метод для множественного добавления данных в таблицу
         """
-        add_stmt = insert(self.model).values([item.model_dump() for item in data])
+        add_stmt = insert(self.model).values(
+            [item.model_dump() for item in data]
+        )
         # print(add_stmt.compile(compile_kwargs={"literal_binds": True}))
         await self.session.execute(add_stmt)
 

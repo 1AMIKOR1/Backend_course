@@ -8,7 +8,9 @@ from unittest import mock
 #     return wrapper
 # mock.patch("fastapi_cache.decorator.cache", empty_cache).start() использование своего декоратора
 
-mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f).start()
+mock.patch(
+    "fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f
+).start()
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -55,13 +57,14 @@ async def setup_database(check_test_mode) -> None:
 
 @pytest.fixture(scope="session", autouse=True)
 async def fill_database(setup_database):
-
     with open("tests/hotels_mock.json", encoding="UTF-8") as file_in:
         hotels_from_file = json.load(file_in)
     with open("tests/rooms_mock.json", encoding="UTF-8") as file_in:
         rooms_form_file = json.load(file_in)
 
-    hotels_data = [SHotelAdd.model_validate(hotel) for hotel in hotels_from_file]
+    hotels_data = [
+        SHotelAdd.model_validate(hotel) for hotel in hotels_from_file
+    ]
     rooms_data = [SRoomAdd.model_validate(room) for room in rooms_form_file]
     async for db_ in get_db_null_pool():
         await db_.hotels.add_bulk(hotels_data)
@@ -80,14 +83,16 @@ async def ac() -> AsyncClient:
 @pytest.fixture(scope="session", autouse=True)
 async def register_user(ac, setup_database):
     await ac.post(
-        "/auth/register", json={"email": "johnsmith@email.com", "password": "password"}
+        "/auth/register",
+        json={"email": "johnsmith@email.com", "password": "password"},
     )
 
 
 @pytest.fixture(scope="session")
 async def authenticated_ac(ac, register_user):
     await ac.post(
-        url="/auth/login", json={"email": "johnsmith@email.com", "password": "password"}
+        url="/auth/login",
+        json={"email": "johnsmith@email.com", "password": "password"},
     )
     assert ac.cookies["access_token"]
     yield ac

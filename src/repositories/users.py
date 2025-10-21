@@ -21,7 +21,9 @@ class UsersRepository(BaseRepository):
     async def add(self, data: BaseModel):
         try:
             add_stmt = (
-                insert(self.model).values(**data.model_dump()).returning(self.model)
+                insert(self.model)
+                .values(**data.model_dump())
+                .returning(self.model)
             )
             result = await self.session.execute(add_stmt)
             model = result.scalars().one_or_none()

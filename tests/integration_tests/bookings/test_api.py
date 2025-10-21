@@ -18,8 +18,9 @@ values_test_add_bookings = [
 async def test_add_bookings(
     room_id, date_from, date_to, status_code, db, authenticated_ac
 ):
-
-    booking = SBookingAddRequest(room_id=room_id, date_from=date_from, date_to=date_to)
+    booking = SBookingAddRequest(
+        room_id=room_id, date_from=date_from, date_to=date_to
+    )
 
     response = await authenticated_ac.post(
         url="/bookings/", json=booking.model_dump(mode="json")
@@ -64,7 +65,9 @@ async def test_add_get_my_bookings(
     authenticated_ac,
     delete_all_bookings,
 ):
-    booking = SBookingAddRequest(room_id=room_id, date_from=date_from, date_to=date_to)
+    booking = SBookingAddRequest(
+        room_id=room_id, date_from=date_from, date_to=date_to
+    )
 
     response_add = await authenticated_ac.post(
         url="/bookings/", json=booking.model_dump(mode="json")

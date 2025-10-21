@@ -15,7 +15,6 @@ from src.schemas.rooms import SRoomGet, SRoomWithRels
 
 
 class RoomsRepository(BaseRepository):
-
     model: type[RoomsModel] = RoomsModel
     schema: type[SRoomGet] = SRoomGet
     mapper: type[DataMapper] = RoomDataMapper
@@ -31,7 +30,6 @@ class RoomsRepository(BaseRepository):
         limit: int,
         offset: int,
     ):
-
         rooms_ids_to_get = rooms_ids_free(
             hotel_id=hotel_id,
             date_from=date_from,

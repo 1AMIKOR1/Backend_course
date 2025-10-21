@@ -5,12 +5,14 @@ class SUserRequestAdd(BaseModel):
     email: EmailStr
     password: str
 
-class SUserAdd(BaseModel):  
+
+class SUserAdd(BaseModel):
     email: EmailStr
     hashed_password: str
 
+
 class SUser(BaseModel):
-    id: int 
+    id: int
     email: EmailStr
     model_config = ConfigDict(from_attributes=True)
 

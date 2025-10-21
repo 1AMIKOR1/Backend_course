@@ -54,7 +54,6 @@ class RoomService(BaseService):
             room_data.facilities_ids is not None
             and room_data.facilities_ids != []
         ):
-
             valid_facility_ids = await FacilityService(
                 self.db
             ).check_existing_facilities(room_data.facilities_ids)

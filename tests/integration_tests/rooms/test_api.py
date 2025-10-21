@@ -32,7 +32,9 @@ values_test_add_room = [
 
 
 @pytest.mark.parametrize(parameters_test_add_room, values_test_add_room)
-async def test_add_room(hotel_id, title, description, price, quantity, status_code, ac):
+async def test_add_room(
+    hotel_id, title, description, price, quantity, status_code, ac
+):
     json_request = {
         "title": title,
         "description": description,
@@ -58,7 +60,6 @@ values_test_get_room = [
 
 @pytest.mark.parametrize(parameters_test_get_room, values_test_get_room)
 async def test_get_room(hotel_id, room_id, status_code, ac):
-
     response = await ac.get(url=f"/hotels/{hotel_id}/rooms/{room_id}")
     # print(f"{response.json()=}")
     room = response.json()
@@ -117,7 +118,9 @@ values_test_part_edit_room = [
 ]
 
 
-@pytest.mark.parametrize(parameters_test_part_edit_room, values_test_part_edit_room)
+@pytest.mark.parametrize(
+    parameters_test_part_edit_room, values_test_part_edit_room
+)
 async def test_part_edit_room(
     hotel_id, room_id, title, description, price, quantity, status_code, ac
 ):

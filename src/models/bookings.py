@@ -20,4 +20,3 @@ class BookingsModel(Base):
     @hybrid_property
     def total_cost(self) -> int:
         return self.price * (self.date_to - self.date_from).days
-    

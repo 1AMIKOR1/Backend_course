@@ -7,7 +7,7 @@ celery_instance = Celery(
     broker=settings.REDIS_URL,
     include=[
         "src.tasks.celery_tasks",
-    ]
+    ],
 )
 celery_instance.conf.beat_schedule = {
     "run-every-five-seconds": {

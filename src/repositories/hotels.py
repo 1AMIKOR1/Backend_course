@@ -20,7 +20,9 @@ class HotelsRepository(BaseRepository):
         query = select(HotelsModel)
         if location:
             query = query.filter(
-                func.lower(HotelsModel.location).contains(location.strip().lower())
+                func.lower(HotelsModel.location).contains(
+                    location.strip().lower()
+                )
             )
         if title:
             query = query.filter(
@@ -29,7 +31,9 @@ class HotelsRepository(BaseRepository):
         query = query.limit(limit).offset(offset)
         result = await self.session.execute(query)
 
-        return [self.mapper.map_to_schema(model) for model in result.scalars().all()]
+        return [
+            self.mapper.map_to_schema(model) for model in result.scalars().all()
+        ]
 
     async def get_filtered_free_hotels(
         self,
@@ -40,7 +44,6 @@ class HotelsRepository(BaseRepository):
         location: str,
         title: str,
     ):
-
         # if date_from > date_to:
         #     raise InvalidDateRangeException
 
@@ -55,7 +58,9 @@ class HotelsRepository(BaseRepository):
             .filter(RoomsModel.id.in_(rooms_ids_to_get))
         )
         if title is not None:
-            title = func.lower(HotelsModel.title).contains(title.strip().lower())
+            title = func.lower(HotelsModel.title).contains(
+                title.strip().lower()
+            )
         if location is not None:
             location = func.lower(HotelsModel.location).contains(
                 location.strip().lower()

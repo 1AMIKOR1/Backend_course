@@ -23,8 +23,12 @@ class BookingService(BaseService):
         )
         return booking
 
-    async def create_booking(self, user_id: int, booking_data: SBookingAddRequest):
-        room = await RoomService(self.db).get_room_with_check(booking_data.room_id)
+    async def create_booking(
+        self, user_id: int, booking_data: SBookingAddRequest
+    ):
+        room = await RoomService(self.db).get_room_with_check(
+            booking_data.room_id
+        )
         price = room.price
         _booking_data = SBookingAdd(
             user_id=user_id, price=price, **booking_data.model_dump()

@@ -16,7 +16,9 @@ class RoomsFacilitiesRepository(BaseRepository):
     model: RoomsFacilitiesModel = RoomsFacilitiesModel
     mapper: DataMapper = FacilityDataMapper
 
-    async def edit_facilities(self, room_id: int, new_facilities_ids: list[int] | None):
+    async def edit_facilities(
+        self, room_id: int, new_facilities_ids: list[int] | None
+    ):
         current_facilities_ids_query = select(self.model.facility_id).filter_by(
             room_id=room_id
         )

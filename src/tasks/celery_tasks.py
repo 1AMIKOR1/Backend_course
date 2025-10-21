@@ -36,7 +36,9 @@ def resize_and_save_images(
             new_height = int(original_height * ratio)
 
             # Изменяем размер
-            resized_img = img.resize((width, new_height), Image.Resampling.LANCZOS)
+            resized_img = img.resize(
+                (width, new_height), Image.Resampling.LANCZOS
+            )
 
             # Получаем имя файла без пути и расширение
             base_name = os.path.basename(input_image_path)

@@ -30,9 +30,10 @@ def rooms_ids_free(
     rooms_free = (
         select(
             RoomsModel.id.label("room_id"),
-            (RoomsModel.quantity - func.coalesce(rooms_booked.c.booked_rooms, 0)).label(
-                "free_rooms"
-            ),
+            (
+                RoomsModel.quantity
+                - func.coalesce(rooms_booked.c.booked_rooms, 0)
+            ).label("free_rooms"),
             RoomsModel.price,
             RoomsModel.title,
         )
@@ -54,7 +55,9 @@ def rooms_ids_free(
             func.lower(RoomsModel.title).contains(title.strip().lower())
         )
 
-    rooms_ids_for_hotel = rooms_ids_for_hotel.subquery(name="rooms_ids_for_hotel")
+    rooms_ids_for_hotel = rooms_ids_for_hotel.subquery(
+        name="rooms_ids_for_hotel"
+    )
 
     rooms_ids_to_get = (
         select(rooms_free.c.room_id)
