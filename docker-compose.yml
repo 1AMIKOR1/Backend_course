@@ -46,9 +46,8 @@ services:
       - ./logs/nginx:/var/log/nginx
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /var/lib/letsencrypt:/var/lib/letsencrypt:ro
-      - ./web_nginx:/var/www/html:ro  
-    depends_on:
-      - booking_back_service  
+      - ./web_nginx:/var/www/html:ro
+
     restart: unless-stopped
 
 networks:
