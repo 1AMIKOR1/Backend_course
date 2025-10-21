@@ -1,5 +1,7 @@
-import redis.asyncio as redis
 import logging
+
+import redis.asyncio as redis
+
 
 class RedisManager:
     def __init__(self, host: str, port: int):

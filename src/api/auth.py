@@ -2,12 +2,12 @@ from fastapi import APIRouter, Body, Response
 
 from src.api.dependencies import DBDep, UserIdDep
 from src.exceptions.auth import (
+    InvalidPasswordException,
+    InvalidPasswordHTTPException,
     UserAlreadyExistsException,
     UserAlreadyExistsHTTPException,
     UserNotFoundException,
     UserNotFoundHTTPException,
-    InvalidPasswordHTTPException,
-    InvalidPasswordException,
 )
 from src.schemas.users import SUser, SUserRequestAdd
 from src.services.auth import AuthService

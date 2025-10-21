@@ -1,4 +1,4 @@
-from src.schemas.bookings import SBookingGet, SBookingAddRequest, SBookingAdd
+from src.schemas.bookings import SBookingAdd, SBookingAddRequest, SBookingGet
 from src.services.auth import AuthService
 from src.services.base import BaseService
 from src.services.rooms import RoomService

@@ -11,14 +11,14 @@ from unittest import mock
 mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f).start()
 
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
 from src.api.dependencies import get_db
 from src.config import settings
 from src.database import (
     Base,
-    engine_null_pool,
     async_session_maker_null_pool,
+    engine_null_pool,
 )
 from src.main import app
 from src.models import *

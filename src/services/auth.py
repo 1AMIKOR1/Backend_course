@@ -6,11 +6,11 @@ from passlib.context import CryptContext
 from src.config import settings
 from src.exceptions.auth import (
     InvalidJWTTokenException,
+    InvalidPasswordException,
     UserAlreadyExistsException,
     UserNotFoundException,
-    InvalidPasswordException,
 )
-from src.schemas.users import SUserRequestAdd, SUserAdd, SUser
+from src.schemas.users import SUser, SUserAdd, SUserRequestAdd
 from src.services.base import BaseService
 
 

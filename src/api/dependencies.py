@@ -5,9 +5,9 @@ from pydantic import BaseModel, Field
 
 from src.database import async_session_maker
 from src.exceptions.auth import (
-    NoAccessTokenHTTPException,
     InvalidJWTTokenException,
     InvalidTokenHTTPException,
+    NoAccessTokenHTTPException,
 )
 from src.services.auth import AuthService
 from src.utils.db_manager import DBManager

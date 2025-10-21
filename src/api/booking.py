@@ -6,8 +6,11 @@ from src.exceptions.booking import (
     RoomNotAvailableException,
     RoomNotAvailableHTTPException,
 )
-from src.exceptions.rooms import RoomNotFoundException, RoomNotFoundHTTPException
-from src.schemas.bookings import SBookingGet, SBookingAddRequest
+from src.exceptions.rooms import (
+    RoomNotFoundException,
+    RoomNotFoundHTTPException,
+)
+from src.schemas.bookings import SBookingAddRequest, SBookingGet
 from src.services.booking import BookingService
 
 router = APIRouter(prefix="/bookings", tags=["Бронирование"])

@@ -1,14 +1,15 @@
 from datetime import date
+
 from sqlalchemy import select
-
-
 from sqlalchemy.orm.strategy_options import selectinload
 
-
-from src.repositories.base import BaseRepository
 from src.models.rooms import RoomsModel
+from src.repositories.base import BaseRepository
 from src.repositories.mapper.base import DataMapper
-from src.repositories.mapper.mappers import RoomDataMapper, RoomDataWithRelsMapper
+from src.repositories.mapper.mappers import (
+    RoomDataMapper,
+    RoomDataWithRelsMapper,
+)
 from src.repositories.utils import rooms_ids_free
 from src.schemas.rooms import SRoomGet, SRoomWithRels
 

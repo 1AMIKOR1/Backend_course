@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 from src.database import Base
 
-
 ModelType = TypeVar("ModelType", bound=Base)
 SchemaType = TypeVar("SchemaType", bound=BaseModel)
 

@@ -1,4 +1,5 @@
 import pytest
+
 from src.schemas.bookings import SBookingAddRequest
 from tests.conftest import get_db_null_pool
 

@@ -97,7 +97,6 @@ async def test_edit_room(
     response = await ac.put(
         url=f"/hotels/{hotel_id}/rooms/{room_id}", json=json_request
     )
-    print(f"{response.json()=}")
     assert response.status_code == status_code
 
 
@@ -131,7 +130,6 @@ async def test_part_edit_room(
     response = await ac.patch(
         url=f"/hotels/{hotel_id}/rooms/{room_id}", json=json_request
     )
-    print(f"{response.json()=}")
     assert response.status_code == status_code
 
 

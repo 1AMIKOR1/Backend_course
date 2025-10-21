@@ -7,7 +7,10 @@ from src.exceptions.auth import UserAlreadyExistsException
 from src.models.users import UsersModel
 from src.repositories.base import BaseRepository
 from src.repositories.mapper.base import DataMapper
-from src.repositories.mapper.mappers import UserDataMapper, UserDataWithHashedPassword
+from src.repositories.mapper.mappers import (
+    UserDataMapper,
+    UserDataWithHashedPassword,
+)
 from src.schemas.users import SUserWithHashedPassword
 
 

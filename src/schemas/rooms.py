@@ -2,6 +2,7 @@ from pydantic import BaseModel, ConfigDict
 
 from src.schemas.facilities import SFacilityGet
 
+
 class SRoomAddRequest(BaseModel):
     title: str
     description: str | None = None

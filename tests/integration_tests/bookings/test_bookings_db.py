@@ -1,5 +1,6 @@
 from datetime import date
-from src.schemas.bookings import SBookingAdd, SBookingPatch, SBookingGet
+
+from src.schemas.bookings import SBookingAdd, SBookingGet, SBookingPatch
 
 
 async def test_booking_crud(db):

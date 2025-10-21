@@ -1,11 +1,14 @@
 from datetime import date
 
-from fastapi import APIRouter, Body, Query, HTTPException
+from fastapi import APIRouter, Body, HTTPException, Query
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep, PaginationDep
 from src.exceptions.base import InvalidDateRangeException
-from src.exceptions.hotels import HotelNotFoundException, HotelNotFoundHTTPException
+from src.exceptions.hotels import (
+    HotelNotFoundException,
+    HotelNotFoundHTTPException,
+)
 from src.schemas.hotels import SHotelAdd, SHotelGet, SHotelPatch
 from src.services.hotels import HotelService
 

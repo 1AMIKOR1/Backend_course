@@ -4,8 +4,14 @@ from fastapi import APIRouter, Body, HTTPException, Query
 
 from src.api.dependencies import DBDep, PaginationDep
 from src.exceptions.base import InvalidDateRangeException
-from src.exceptions.hotels import HotelNotFoundException, HotelNotFoundHTTPException
-from src.exceptions.rooms import RoomNotFoundException, RoomNotFoundHTTPException
+from src.exceptions.hotels import (
+    HotelNotFoundException,
+    HotelNotFoundHTTPException,
+)
+from src.exceptions.rooms import (
+    RoomNotFoundException,
+    RoomNotFoundHTTPException,
+)
 from src.schemas.rooms import (
     SRoomAddRequest,
     SRoomPatchRequest,

@@ -1,4 +1,4 @@
-from src.exceptions.base import MyAppHTTPException, MyAppException
+from src.exceptions.base import MyAppException, MyAppHTTPException
 
 
 class RoomNotFoundException(MyAppException):

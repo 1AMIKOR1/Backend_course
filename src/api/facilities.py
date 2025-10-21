@@ -2,8 +2,11 @@ from fastapi import APIRouter, Body
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep
-from src.exceptions.facilities import FacilityAlreadyExistsException, FacilityAlreadyExistsHTTPException
-from src.schemas.facilities import SFacilityGet, SFacilityAdd
+from src.exceptions.facilities import (
+    FacilityAlreadyExistsException,
+    FacilityAlreadyExistsHTTPException,
+)
+from src.schemas.facilities import SFacilityAdd, SFacilityGet
 from src.services.facilities import FacilityService
 
 router = APIRouter(prefix="/facilities", tags=["Удобства"])

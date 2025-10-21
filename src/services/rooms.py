@@ -1,14 +1,12 @@
 from datetime import date
-import logging
 
 from src.exceptions.rooms import RoomNotFoundException
 from src.schemas.facilities import SRoomFacilityAdd
 from src.schemas.rooms import (
-    SRoomAddRequest,
     SRoomAdd,
-    SRoomGet,
-    SRoomPatchRequest,
+    SRoomAddRequest,
     SRoomPatch,
+    SRoomPatchRequest,
     SRoomWithRels,
 )
 from src.services.base import BaseService
