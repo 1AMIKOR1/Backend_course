@@ -56,7 +56,7 @@ async def login_user(
     return {"access_token": access_token}
 
 
-@router.get("/me", summary="Получение текущего пользователя")
+@router.get("/me", summary="Получение текущего пользователя для профиля")
 async def get_me(db: DBDep, user_id: UserIdDep) -> SUser | None:
     try:
         user: None | SUser = await AuthService(db).get_me(user_id)
